@@ -1,0 +1,31 @@
+# Fichiers de compilation LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
+*.bcf
+*.xml
+*.nav
+*.snm
+*.idx
+*.ind
+*.ilg
+*.lof
+*.lot
+*.pdf
+*.fdb_latexmk
+*.fls
+
+# Fichiers système et d'éditeurs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.bak
+*.swp
+
+*.pdf
+!livrables_officiels/*.pdf

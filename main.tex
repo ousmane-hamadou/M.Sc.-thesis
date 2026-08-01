@@ -1,0 +1,73 @@
+\documentclass[12pt,a4paper,oneside]{report}
+
+\input{preamble/packages}
+
+\title{Indexation sémantique frugale des actes d'état civil manuscrits pour l'archivage : graphe de connaissances pour l'archivage et la gouvernance documentaire en Afrique subsaharienne}
+\author{Ousmane Hamadou}
+\date{\today}
+
+\begin{document}
+
+% --- Front Matter (Chiffres romains) ---
+
+
+% 1. Page de titre
+\begin{titlepage}
+    \thispagestyle{empty}
+    \begin{center}
+        {\Large\bfseries Université de Ngaoundéré}\\[0.4cm]
+        {\large \textsc{Facult\'e des Sciences}}\\[0.2cm]
+        {\normalsize Département d'Informatique}\\[2.5cm]
+
+        {\Large\bfseries Indexation sémantique frugale des actes d'état civil manuscrits pour l'archivage : graphe de connaissances pour l'archivage et la gouvernance documentaire en Afrique subsaharienne}\\[2cm]
+
+        Mémoire présenté en vue de l'obtention du diplôme de\\[0.3cm]
+        {\bfseries Master 2 en Informatique}\\[0.3cm]
+        Spécificité : SLED\\[2cm]
+
+        Par :\\[0.3cm]
+        {\large\bfseries Ousmane Hamadou}\\[0.5cm]  % Correction ici : \\ au lieu de \[
+        Titulaire d'une Licence en Mathématiques et Informatique\\[2cm]
+
+        Sous la direction de :\\[0.3cm]
+        {\bfseries Pr Fendji Jean Louis}\\[2.5cm]
+
+        {\itshape Année académique 2025/2026}
+    \end{center}
+\end{titlepage}
+
+\pagenumbering{roman}
+\setcounter{page}{2}
+\include{frontmatter/abstract_fr}
+\include{frontmatter/abstract_en}
+
+\selectlanguage{french}
+\clearpage
+\phantomsection % Assure une ancre correcte pour le lien hypertexte
+\addcontentsline{toc}{chapter}{\contentsname}
+\tableofcontents
+\listoffigures
+\listoftables
+
+\include{frontmatter/dedication}
+\include{frontmatter/thanks}
+
+% --- Main Matter (Chiffres arabes) ---
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\include{chapters/intro}
+\include{chapters/chap1_etat_art}
+\include{chapters/chap2_methodologie}
+\include{chapters/chap3_impl}
+\include{chapters/chap4_experimentations}
+\include{chapters/conclusion}
+
+% --- Bibliographie ---
+\printbibliography[heading=bibintoc, title={Bibliographie}]
+
+% --- Annexes ---
+\appendix
+\include{backmatter/annexes}
+
+\end{document}

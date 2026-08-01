@@ -1,0 +1,79 @@
+% --- Encodage et Langue ---
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{csquotes}
+\usepackage[english,french]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% --- Mise en page (Geometry) ---
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=30mm,      % Marge gauche exigée à 30 mm
+  right=30mm,     % Marge droite exigée à 30 mm
+  footskip=15mm   % Positionne le numéro de page à 10 mm du bord inférieur (25mm - 15mm)
+}
+
+% --- Interlignes et Indentation française ---
+\usepackage{setspace}
+\onehalfspacing                  % Corps du texte en interligne 1,5
+\setlength{\parindent}{1cm}     % Alinéa de 1 cm (norme classique)
+\setlength{\parskip}{0pt}       % Pas d'espace blanc entre les paragraphes
+
+% --- Notes de bas de page ---
+\usepackage[hang,flushmargin]{footmisc}
+\renewcommand{\footnotesize}{\fontsize{9}{11}\selectfont} % Notes à 9pt (min 8pt)
+
+% --- Mathématiques ---
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{siunitx}
+\sisetup{output-decimal-marker = {,}} % Configure siunitx pour utiliser la virgule française
+
+% --- Graphiques et Tableaux ---
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs} % Pour de beaux tableaux
+\usepackage{multirow} % Pour fusionner des lignes si nécessaire
+
+% --- En-têtes et Pieds de page ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage} % Numéro de page centré en bas
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyfoot[C]{\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+% --- Titres des sections ---
+\usepackage{titlesec}
+\titleformat{\chapter}[hang]
+{\bfseries\huge}
+{\chaptername\ \thechapter\ : }
+{0em}
+{}
+% --- Hyperliens ---
+\usepackage[colorlinks=true, allcolors=black]{hyperref}
+
+% --- Bibliographie (BibLaTeX) ---
+\usepackage[
+  backend=biber,
+  style=apa,
+  language=french
+]{biblatex}
+
+% Associe les règles de langue française spécifiques à l'APA
+\DeclareLanguageMapping{french}{french-apa}
+
+% Optionnel : met le "et al." en italique
+\DefineBibliographyStrings{french}{andothers = {\textit{et~al.}}}
+\addbibresource{bibliography/references.bib}

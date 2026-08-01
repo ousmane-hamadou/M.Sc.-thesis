@@ -1,0 +1,145 @@
+\documentclass[12pt,a4paper]{report}
+
+% ------------------------------------------------------------------
+% PARAMETRES MODIFIABLES
+% ------------------------------------------------------------------
+\newcommand{\titreMemoire}{Indexation s\'emantique frugale des actes d'\'etat civil manuscrits pour l'archivage~: graphe de connaissances pour l'archivage et la gouvernance documentaire en Afrique subsaharienne}
+\newcommand{\auteurNom}{Ousmane Hamadou}
+\newcommand{\matriculeEtu}{17B292FS}
+\newcommand{\directeurNom}{Pr. Fendji Jean Louis}
+\newcommand{\anneeUniv}{2025~--~2026}
+\newcommand{\cheminLogoUdng}{figures/logo_univ.png}
+\newcommand{\cheminLogoFS}{figures/logo_fs.png}
+
+% ---------------------------------------------------------------------
+% PACKAGES
+% ---------------------------------------------------------------------
+\usepackage[a4paper,top=1.6cm,bottom=1.6cm,left=2.2cm,right=2.2cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{mathpazo}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins}             % pour l'effet "double filet" du cadre du titre
+\usepackage{fancyhdr}
+\usepackage{ragged2e}
+\definecolor{accentcolor}{HTML}{000000}   % noir = choix sur, changez ici uniquement
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \thispagestyle{empty}
+
+    % ==============================================================
+    % 1. LOGOS
+    % ==============================================================
+    \noindent
+    \begin{minipage}[c][2.6cm][c]{0.28\textwidth}
+        \centering
+        % Chemin du logo de l'Universite de Ngaoundere
+        \includegraphics[height=2.3cm]{\cheminLogoUdng}
+    \end{minipage}%
+    \hfill
+    \begin{minipage}[c][2.6cm][c]{0.42\textwidth}
+        \centering
+        {\small\scshape R\'epublique du Cameroun}\\[1pt]
+        {\footnotesize Paix -- Travail -- Patrie}\\[5pt]
+        \textcolor{accentcolor}{\rule{0.55\linewidth}{0.3pt}}\\[5pt]
+        {\scriptsize\itshape Republic of Cameroon}\\[1pt]
+        {\scriptsize\itshape Peace -- Work -- Fatherland}
+    \end{minipage}%
+    \hfill
+    \begin{minipage}[c][2.6cm][c]{0.28\textwidth}
+        \centering
+        % Chemin du logo de la Faculté des Sciences
+        \includegraphics[height=2.3cm]{\cheminLogoFS}
+    \end{minipage}
+
+    \vspace{0.45cm}
+    \textcolor{accentcolor}{\rule{\linewidth}{1pt}}\\[1.5pt]
+    \textcolor{accentcolor}{\rule{\linewidth}{0.3pt}}
+
+    \vspace{0.55cm}
+
+    % ==============================================================
+    % 2. MENTION UNIVERSITE / FACULTE
+    % ==============================================================
+    \begin{minipage}[t]{0.46\textwidth}
+        \centering
+        \textbf{\large UNIVERSIT\'E DE NGAOUND\'ER\'E}\\[3pt]
+        \textsc{Facult\'e des Sciences}\\
+        D\'epartement de Math\'ematiques et Informatique
+    \end{minipage}%
+    \hfill
+    \begin{minipage}[t]{0.46\textwidth}
+        \centering
+        \textbf{\large THE UNIVERSITY OF NGAOUNDERE}\\[3pt]
+        \textsc{Faculty of Science}\\
+        Department of Mathematics and Computer Science
+    \end{minipage}
+
+    \vspace{0.7cm}
+
+    {\small
+        \textbf{\'ECOLE DOCTORALE} : SCIENCES, TECHNOLOGIE ET ING\'ENIERIE\\[3pt]
+        \textbf{UFD} : MATH\'EMATIQUES, INFORMATIQUE, ING\'ENIERIE ET APPLICATION
+    }
+
+    \vspace{0.55cm}
+
+    {\normalsize
+        M\'emoire de \textbf{Master 2 Recherche} pr\'esent\'e en vue de l'obtention\\
+        du dipl\^ome de Master en Informatique
+    }
+
+    \vspace{1.15cm}
+
+    % ==============================================================
+    % 3. TITRE ENCADRE
+    % ==============================================================
+    \begin{tcolorbox}[
+            colback=white,
+            colframe=accentcolor,
+            boxrule=1pt,
+            arc=0pt,
+            sharp corners,
+            borderline={0.4pt}{2pt}{accentcolor},
+            left=12pt, right=12pt, top=14pt, bottom=14pt,
+            width=0.90\textwidth,
+            halign=center,
+            valign=center,
+        ]
+        {\bfseries\Large \titreMemoire}
+    \end{tcolorbox}
+
+    \vspace{1.2cm}
+
+    % ==============================================================
+    % 4. AUTEUR / DIRECTEUR
+    % ==============================================================
+    {\large Pr\'esent\'e par~:}\\[3pt]
+    {\Large\bfseries \auteurNom}\\[3pt]
+    Matricule~: \texttt{\matriculeEtu}
+
+    \vspace{0.75cm}
+
+    {\large Sous la direction de~:}\\[3pt]
+    {\large\bfseries \directeurNom}
+
+    \vfill
+
+    % ==============================================================
+    % 5. BAS DE PAGE — annee universitaire / soutenance
+    % ==============================================================
+    \textcolor{accentcolor}{\rule{0.5\linewidth}{0.4pt}}\\[8pt]
+    {\large\bfseries Ann\'ee Universitaire~: \anneeUniv}\\[4pt]
+    % {\normalsize Soutenu le {\today}}
+
+\end{titlepage}
+
+\end{document}
