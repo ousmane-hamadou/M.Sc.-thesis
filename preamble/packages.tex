@@ -77,3 +77,16 @@
 % Optionnel : met le "et al." en italique
 \DefineBibliographyStrings{french}{andothers = {\textit{et~al.}}}
 \addbibresource{bibliography/references.bib}
+
+% --- Environnement pour les citations longues (Long quote) ---
+\newenvironment{longquote}{
+  \begin{list}{}{
+      \setlength{\leftmargin}{10mm}  % Retrait de 10 mm à gauche
+      \setlength{\rightmargin}{10mm} % Retrait de 10 mm à droite
+      \setlength{\topsep}{0.5em}     % Petit espace vertical avant/après
+    }
+    \item[]
+          \singlespacing                   % Interligne 1,0 forcé
+          }{
+  \end{list}
+}
