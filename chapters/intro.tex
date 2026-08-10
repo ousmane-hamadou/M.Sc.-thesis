@@ -1,59 +1,113 @@
 \chapter*{Introduction}
 \addcontentsline{toc}{chapter}{Introduction}
 
-\begin{longquote}
-    Les Buts de la Documentation organisée consistent à pouvoir offrir sur tout ordre de fait et de connaissance des informations documentées : 1\textdegree{} universelles quant à leur objet ; 2\textdegree{} sûres et vraies ; 3\textdegree{} complètes ; 4\textdegree{} rapides ; 5\textdegree{} à jour ; 6\textdegree{} faciles à obtenir ; 7\textdegree{} réunies d'avance et prêtes à être communiquées ; 8\textdegree{} mises à la disposition du plus grand nombre. \parencite{otletTraiteDocumentationLivre2021}
-\end{longquote}
+\section*{Contexte et motivation}
 
-\begin{longquote}
-    Les archives constituent un patrimoine unique et irremplaçable transmis de génération en génération [...].
-    Sources d'informations fiables pour une gouvernance responsable et transparente, [elles] jouent un rôle essentiel dans le développement des sociétés. \parencite{UniversalDeclarationArchives}
-\end{longquote}
+L'état civil constitue le socle documentaire fondamental sur lequel reposent l'identité juridique des citoyens, l'exercice des droits civiques et la souveraineté administrative des États.
+En tant que registre authentique des naissances, mariages et décès, il alimente directement la gouvernance documentaire publique, entendue comme l'ensemble des règles, procédures et moyens techniques qui assurent la traçabilité, l'accès et la conservation des documents administratifs \parencite{michaudSecretsDEtats2015}.
 
-Ces deux textes définissent le contrat social de l'archivistique moderne : transformer la trace brute en connaissance organisée, universellement accessible et durablement fiable.
-Pres de un siècle après Otlet, cette ambition s'est déplacée vers le Web sémantique et les graphes de connaissances --- seuls capables aujourd'hui de tenir la promesse d'une information structurée au-delà du document isolé.
-En Afrique subsaharienne pourtant, cet idéal se heurte à une réalité matérielle qui impose d'intégrer une dimension absente des paradigmes dominants des pays Nord : la frugalité.
+Pour répondre à cet impératif, de nombreux pays de la sous-région ont engagé des réformes institutionnelles et informatiques d'envergure.
+Au Sénégal, le programme \textit{NEKKAL} associe l'interconnexion des centres à la numérisation et à l'indexation d'un volume important d'actes existants ; les résultats publiés font état de 10 millions d'actes numérisés et de 20 millions d'actes indexés \parencite{civipol2023nekkal}.
+Au Burkina Faso, \textit{iCivil} vise l'enregistrement numérique et centralisé des événements d'état civil à partir de leur survenance \parencite{ogp2023burkina}.
+En Côte d'Ivoire, la numérisation des registres d'état civil est engagée à travers des projets pilotes\parencite{aimf2024grandbassam}, en République du Congo, les autorités ont lancé un projet de numérisation des archives d'état civil produites par les mairies\parencite{quenum2024congo}.
+Au Cameroun, la loi n\textsuperscript{o} 2024/001 du 24 juillet 2024 régissant les archives encadre désormais l'organisation, la traçabilité et la sécurisation du patrimoine archivistique national \parencite{cameroun2024loiarchives}.
+Ces initiatives témoignent d'une transformation en cours, mais la couverture du stock historique, son indexation fine et son interopérabilité demeurent variables selon les contextes.
 
-\subsubsection{Contexte et motivation}
+Une part importante des registres anciens subsiste sous forme manuscrite, répartie entre centres d'état civil, services territoriaux et dépôts d'archives.
+Leur traitement est rendu difficile par la diversité des formats, des écritures, de l'état des supports et des conditions de conservation.
+Par analogie avec un autre type de fonds manuscrit ouest-africain --- les manuscrits religieux et historiques en langue arabe, dont l'étude documente des variations matérielles, scripturaires et environnementales importantes \parencite{abdoulahi2019contribution} ---, des difficultés comparables, quoique de nature différente, peuvent être anticipées sur les registres d'état civil manuscrits.
+Pour les personnes dépourvues de documents contemporains, ces fonds peuvent constituer une preuve documentaire déterminante de l'identité juridique, de l'âge ou de la filiation \parencite{uneca2020status}.
 
-L'Afrique subsaharienne connaît une accélération de la transformation numérique de ses administrations publiques \parencite{lawalDIGITALGOVERNANCEINCLUSIVE2025,egbeleoDigitalTransformationInstitutional2025}.
-Dans cette dynamique, l'enregistrement des faits d'état civil s'impose comme une infrastructure de gouvernance, d'inclusion sociale et de souveraineté nationale \parencite{BirthRegistrationSubSaharan2025} : garantir à chaque individu une existence légale, conformément à l'Objectif de Développement Durable 16.9 des Nations Unies, conditionne toute planification en matière d'éducation, de santé et de droits fondamentaux.
-Or la gestion documentaire de la région fait face à une crise silencieuse d'amnésie de ses passifs archivistiques : la production administrative, bien qu'indispensable, a longtemps été gérée de manière inadéquate, mettant à risque la préservation de la mémoire collective et la justification des droits individuels \parencite{michaudSecretsDEtats2015, bintsenaArchivesAdministrativesDans2017}.
+La numérisation seule ne suffit pas à rendre ces informations pleinement exploitables : une image numérique dépourvue de transcription et de métadonnées structurées ne permet pas d'interroger directement les relations entre personnes, lieux, événements et actes.
+Les erreurs résiduelles de reconnaissance d'écriture manuscrite --- ci-après désignées indifféremment comme erreurs de reconnaissance ou de transcription ---, les variantes orthographiques, l'hétérogénéité des formulaires et l'incomplétude de certains actes limitent également la recherche par mots-clés.
+L'enjeu consiste donc à identifier les entités présentes, à expliciter leurs relations et à représenter les informations absentes, incertaines ou contradictoires sans les inférer abusivement.
 
-Plusieurs pays de la sous-région illustrent cette tension entre ambition de modernisation et réalité de terrain.
-Le Sénégal est parvenu à numériser plus de 20 millions d'actes via le projet NEKKAL \parencite{civipol2023nekkal}, ce modèle reposait sur des moyens financiers et humains extrêmement lourds --- subventions internationales et indexation manuelle massive ---, rendant sa reproduction problématique pour les États aux ressources plus limitées.
-Le Burkina Faso a déployé iCivil, un système d'enregistrement nativement numérique --- tourné vers le flux des actes à venir, non vers l'indexation rétrospective du stock hérité.
-En 2024, le Cameroun a engagé un tournant normatif majeur par l'adoption simultanée de lois régissant les archives numériques (n° 2024/001), l'état civil (n° 2024/016) et la protection des données personnelles (n° 2024/017).
-Cependant, ce nouvel élan juridique se heurte à d'importantes contraintes du terrain : un déficit documentaire touchant près de 7 millions d'individus et la sous-exploitation d'un patrimoine d'actes manuscrits anciens restreint à des \og îlots informationnels \fg{} locaux \parencite{olembe2024webinaire}.
-Nous n'avons pas identifié, dans la littérature et les sources institutionnelles consultées, de dispositif documenté combinant aujourd'hui numérisation de masse et indexation sémantique du stock manuscrit hérité --- c'est précisément ce vide que ce mémoire investit.
+Dans cette perspective, un graphe de connaissances peut fournir une couche sémantique complémentaire au document original.
+Il représente les personnes, lieux, événements et actes comme des entités reliées par des relations typées, notamment de filiation ou de déclaration. RiC-O fournit un vocabulaire et des règles formelles permettant de produire des données archivistiques RDF et de favoriser leur interopérabilité \parencite{icaegad2025rico11,clavaudica}.
+L'interopérabilité effective dépend toutefois du profil d'application adopté, de la qualité des identifiants, des règles de transformation et de la gouvernance des données.
 
-Cette même tension se lit au niveau des standards de description archivistique. Les modèles hérités --- OAIS, EAD, Dublin Core --- structurent un fonds selon une logique arborescente à racine unique, inapte à représenter un acte d'état civil mettant simultanément en jeu plusieurs agents et référencé par d'autres actes ultérieurs.
-Le standard Records in Contexts (RiC) publié par le Conseil international des archives, dépasse cette rigidité en substituant à l'arbre un graphe de relations typées --- mais cette bascule ne résout ni l'indexation du contenu de ces documents manuscrits, ni le coût des ressources qu'exige son déploiement effectif.
+Enfin, le déploiement d'une telle chaîne doit être compatible avec les ressources disponibles.
+Dans un contexte institutionnel comparable par ses contraintes de financement, de compétences et d'infrastructures, les travaux sur la préservation numérique dans les bibliothèques universitaires sud-africaines signalent des difficultés récurrentes liées à la conservation de long terme \parencite{masenyaFactorsThatInfluence2020,masenyaDigitalPreservationPractices2019}.
+Des modèles et outils exécutables localement, économes en calcul et en connectivité, peuvent ainsi réduire la dépendance à des prestataires externes et renforcer la maîtrise publique des données d'identité.
+L'objectif est alors d'évaluer les conditions dans lesquelles une chaîne frugale peut produire une représentation sémantique fiable, traçable et exploitable des registres manuscrits d'état civil.
 
-Les systèmes documentaires classiques reposent majoritairement sur une indexation lexicale ou contrôlée, fondée sur des mots-clés, des descripteurs, des classifications ou des thésaurus \parencite{menilletThesaurusIndexation1993}, ce qui les rend moins aptes à représenter des relations complexes se limitant à retrouver des documents contenant certains mots, non des faits : une requête portant sur une même lignée familiale n'y a simplement pas de formulation possible.
-L'indexation sémantique par graphe de connaissances offre une réponse structurelle en représentant chaque personne comme un nœud persistant à travers les actes.
-Cette expressivité a un double coût : un graphe ne dissout pas le bruit de la reconnaissance manuscrite, il le déplace vers un problème de résolution d'entités \parencite{alkendiAdvancementsChallengesHandwritten2024,tuselmannNamedEntityLinking2022}, et son déploiement mobilise une infrastructure de calcul dont la plupart des services d'archives subsahariens ne disposent pas, au risque d'une dépendance technologique exogène menaçant la souveraineté numérique des États sur leurs données d'identité \parencite{musoniDigitalIDSystems}.
+\section*{Problématique et Question de recherche}
+
+Les modèles et standards traditionnellement mobilisés en archivistique ne répondent pas tous au même niveau de description.
+OAIS fournit principalement un modèle de référence pour la préservation numérique, EAD encode des instruments de recherche fondés sur une structure hiérarchique et Dublin Core propose un ensemble générique d'éléments de métadonnées.
+Ces approches sont moins adaptées à la représentation d'un acte d'état civil mettant simultanément en relation plusieurs agents, événements et documents associés.
+
+Le Conseil international des archives a créé le standard Records in Contexts (RiC) pour relier plus facilement les éléments d'archives.
+Sa version informatique, l'ontologie RiC-O, permet de transformer ces informations en graphes de données (RDF) facilement interrogeables au moyen de technologies du Web sémantique \parencite{icaegad2025rico11}.
+Bien que l'ontologie RiC-O organise très bien les métadonnées, elle ne permet ni de lire automatiquement les manuscrits, ni de corriger les fautes de lecture.
+De plus, reconnaître avec certitude une même personne à travers plusieurs documents demeure complexe quand les informations d'origine comportent des lacunes ou des erreurs.
+
+L'indexation sémantique ne supprime pas les difficultés de l'indexation textuelle : elle les prolonge par des opérations d'extraction, de désambiguïsation et de mise en relation.
+Dans le cas de documents manuscrits, une erreur de transcription ou d'identification peut produire une relation erronée dans le graphe.
+Les systèmes destinés à des corpus incomplets doivent donc être conçus pour représenter explicitement l'incertitude, la provenance et l'absence d'information.
+
+Enfin, une implémentation de RiC-O implique des opérations de modélisation, de conversion des données, de gestion d'identifiants, de stockage RDF, de requêtage et de maintenance.
+Sa faisabilité dépend donc des ressources techniques et organisationnelles disponibles.
+Dans les contextes à ressources contraintes, cette exigence justifie l'étude de modèles de traitement automatique des langues frugaux, exécutables localement et compatibles avec des infrastructures limitées.
 
 
-\subsubsection{Question de recherche principale}
-C'est de cette confrontation --- une solution conceptuellement adéquate mais de ressource inaccessible --- que ce mémoire pose ainsi la question suivante :
+C'est de cette tension entre expressivité sémantique et faisabilité infrastructurelle que découle la question centrale de ce mémoire  :
 
-\emph{Dans quelle mesure l'intégration de techniques de traitement automatique des langues frugales permet-elle de valider la viabilité d'un modèle de graphe de connaissances normalisé (RiC-O) pour la préservation et l'exploitation des archives manuscrites d'état civil en Afrique subsaharienne, en milieu à ressources computationnelles limitées ?}
+\emph{Dans quelle mesure des techniques frugales de traitement automatique des langues permettent-elles de décrire, de mettre en relation et d'exploiter sémantiquement, au moyen d'un graphe de connaissances conforme à RiC-O, des registres d'état civil manuscrits d'Afrique subsaharienne, dans un environnement à ressources limitées, au service de l'archivage et de la gouvernance documentaire de ces fonds ?}
 
-Plus spécifiquement, ce mémoire évalue si une mobilisation des modèles de langue frugaux plutôt que leurs homologues industriels, des méthodes d'adaptation elles-mêmes économes en données annotées et une exécution intégrale sur infrastructure strictement frugale est compatible avec une qualité sémantique satisfaisante.
+L'étude évalue plus précisément l'effet de trois choix méthodologiques : l'emploi de modèles de langage de taille réduite, l'adaptation à partir d'un volume limité de données annotées et l'exécution locale des traitements.
+Elle mesure leur compatibilité avec une qualité sémantique suffisante, en tenant compte des erreurs de reconnaissance, des ambiguïtés d'identité, de la provenance des assertions et de l'incomplétude structurelle des actes.
 
-\subsubsection{Questions de recherche secondaires}
+\subsection*{Questions de recherche secondaires}
 
-Cette viabilité se décline en quatre Questions de recherche (QRs) :
+Cette recherche s'articule autour de quatre questions secondaires permettant d'évaluer progressivement la faisabilité, la fiabilité et la traçabilité de la chaîne de traitement :
 
+\textbf{Q1 — Frugalité algorithmique} : quel compromis mesurable existe-t-il entre le niveau de compression et d'adaptation économe des modèles de reconnaissance et d'extraction, et leur capacité à extraire correctement des entités et des relations sémantiques?
 
+\textbf{Q2 — Architecture et extraction} : dans quelle mesure l'association de règles métier, de contraintes structurelles et d'un modèle de langage frugal améliore-t-elle la robustesse de l'extraction face aux erreurs de transcription et à la variation des formulaires, par rapport à une approche neuronale seule ?
 
-: quelle est la corrélation entre la variabilité des écritures cursives administratives subsahariennes et la fiabilité des transcriptions automatiques au sein d'un pipeline frugal ? (Q1\label{ques:1}). La deuxième interroge la modélisation : comment adapter l'ontologie RiC-O aux structures de parenté et de filiation propres aux contextes subsahariens sans rompre l'interopérabilité internationale du standard ? (Q2\label{ques:2}). La troisième s'attaque au cœur du compromis technique : quelles sont les limites de performance des modèles de langue frugaux dans l'extraction de relations complexes depuis un texte administratif manuscrit bruité ? (Q3\label{ques:3}). Enfin, la dernière évalue une stratégie de mitigation : une architecture d'extraction hybride, combinant règles symboliques et modèle statistique frugal, améliore-t-elle la robustesse du pipeline par rapport à un modèle neuronal utilisé seul ? (Q4\label{ques:4}).
+\textbf{Q3 — Ingénierie des connaissances} : dans quelle mesure l'ontologie RiC-O permet-elle de représenter les liens de filiation, les agents, les événements, les lieux et les actes associés, et selon quels mécanismes un profil d'application peut-il étendre cette modélisation tout en préservant l'interopérabilité du standard ?
 
-À ces questions répondent quatre hypothèses de recherche, conçues comme des postulats falsifiables. Un graphe de connaissances conforme à RiC-O réduit significativement les silences documentaires liés aux variantes onomastiques, comparativement à une indexation lexicale classique (H1\label{hypo:1}). Une quantification INT8 des modèles frugaux mobilisés n'entraîne pas de dégradation critique de leur performance d'extraction, tout en rendant possible une exécution intégrale sur infrastructure CPU (H2\label{hypo:2}). Un profil d'application RiC-O simplifié et adapté aux structures de parenté subsahariennes représente des fonds hétérogènes sans recourir à une centralisation matérielle lourde (H3\label{hypo:3}). Enfin, une stratégie hybride combinant règles symboliques et modèle statistique frugal améliore la robustesse de l'extraction sur texte administratif bruité, comparativement à un modèle neuronal frugal utilisé seul (H4\label{hypo:4}).
+\textbf{Q4 — Viabilité et propagation des erreurs }: comment les erreurs de transcription se propagent-elles vers la résolution des entités et des relations, et quels seuils permettent de considérer comme viable le peuplement du triplestore ?
 
-Conformément au paradigme de la Design Science Research \parencite{hevnerDesignScienceInformation,Peffers2007ADS}, cette recherche distingue des objectifs scientifiques, orientés vers la production de connaissances généralisables, et des objectifs opérationnels, orientés vers la conception de l'artefact qui sert de support empirique à cette évaluation. Les objectifs scientifiques sont au nombre de trois : caractériser les limites de scalabilité sémantique de RiC-O dans un environnement de calcul dégradé appliqué au patrimoine manuscrit subsaharien (OS1) ; modéliser un profil RiC-O adaptable aux particularités juridiques, onomastiques et parentales des administrations d'Afrique subsaharienne (OS2) ; et évaluer empiriquement l'impact du bruit de transcription HTR sur la robustesse des requêtes SPARQL et sur la qualité du graphe produit (OS3). Les objectifs opérationnels visent la conception de l'artefact : concevoir et implémenter, sur un corpus de preuve de concept de 50 à 100 actes manuscrits camerounais numérisés par photographie, un pipeline frugal complet articulant HTR, extraction d'entités et de relations, et peuplement d'un graphe RiC-O (OO1) ; fine-tuner et quantifier des modèles frugaux exécutables sur infrastructure strictement CPU, interrogeables via un index vectoriel comparé à un moteur lexical de référence (OO2) ; et intégrer, en amont du peuplement du graphe, un mécanisme de pseudonymisation conforme à la loi camerounaise n° 2024/017, comme exigence de conception plutôt que comme contrainte ajoutée après coup (OO3).
+\section*{Objectifs de la recherche}
 
-L'originalité de cette recherche réside dans la confrontation expérimentale inédite du standard RiC \parencite{clavaudICARecordsContextsOntologyb} avec un environnement de traitement par intelligence artificielle local, souverain et frugal, appliqué au patrimoine manuscrit d'état civil subsaharien. Cette intersection n'est couverte ni par les études de numérisation archivistique africaine --- centrées sur la préservation plutôt que sur l'indexation sémantique ---, ni par les architectures sémantiques appliquées à l'état civil ailleurs dans le monde --- développées sans contrainte de calcul frugale ---, ni par les innovations numériques africaines en matière d'enregistrement --- tournées vers le flux à venir plutôt que vers le stock hérité. Cette ambition s'accompagne cependant de limites assumées. L'étude porte sur un corpus restreint de langue française, à l'échelle d'une preuve de concept de 50 à 100 actes camerounais, sans ambition de validation industrielle : elle privilégie la démonstration de viabilité d'un modèle conceptuel. Le profil RiC-O simplifié proposé ne prétend pas non plus se substituer à une adaptation exhaustive du standard à la diversité des pratiques de parenté d'Afrique subsaharienne. Par ailleurs, le caractère multidisciplinaire de ce travail --- au croisement de l'archivistique, du traitement automatique des langues et de l'informatique frugale --- comporte le risque de ne pas approfondir autant chaque domaine séparé, pour privilégier une intégration globale dont l'efficacité sera validée par la mise en pratique du prototype.
+Conformément au paradigme de la Design Science Research \parencite{hevnerDesignScienceInformation,Peffers2007ADS}, ce mémoire s'articule autour d'une dualité entre des objectifs scientifiques, visant la production de nouvelles connaissances et la proposition de modèles conceptuels, et des objectifs opérationnels, qui se concentrent sur la mise en œuvre technique, la constitution de jeux de données et la conduite des protocoles expérimentaux.
 
-Le présent mémoire s'organise en quatre chapitres, qui suivent la trajectoire de la Design Science Research annoncée ci-dessus. Le premier chapitre situe la recherche dans la littérature et identifie les lacunes qu'elle comble. Le deuxième construit le dispositif méthodologique : positionnement épistémologique, profil RiC-O, architecture du pipeline, stratégie de pseudonymisation et protocole expérimental. Le troisième rend compte de l'implémentation et des résultats empiriques obtenus à chaque étage de la chaîne. Enfin, le quatrième interprète ces résultats à la lumière de la problématique, discute les limites du dispositif et ouvre sur les perspectives de déploiement à l'échelle sous-régionale.
+\section*{Objectifs scientifiques}
+
+\textbf{OS1 }: Évaluer l'efficacité et la viabilité des techniques d'IA frugale appliquées à l'extraction d'informations sémantiques dans des documents administratifs manuscrits et bruités.
+
+\textbf{OS2 }: Proposer un modèle d'extension de l'ontologie RiC-O par un profil d'application adapté aux spécificités de l'état civil en Afrique subsaharienne.
+
+\textbf{OS3 }: Modéliser la propagation des erreurs de transcription vers les structures sémantiques du graphe de connaissances et définir les seuils de tolérance systémique garantissant la viabilité du graphe. \emph{A REVOIR}
+
+\subsubsection*{Objectifs opérationnels}
+
+\textbf{OO1 }: Numériser, structurer et annoter manuellement un jeu de données représentatif de registres d'état civil comportant divers niveaux de dégradation et de styles d'écriture manuscrite.
+
+\textbf{OO2 }: Concevoir et implémenter une chaîne de traitement logicielle intégrant un modèle de vision-langage frugal et un SLM pour l'extraction d'entités nommées et de relations sémantiques.
+
+\textbf{OO3 }: Prototyper le graphe de connaissances conformément au profil d'application développé et le peupler automatiquement à partir des données extraites des registres manuscrits.
+
+\textbf{OO4 }: Déployer et tester le système global dans un environnement à ressources computationnelles limitées afin de mesurer son empreinte réelle et ses performances.
+
+\section*{Intérêt et limites de l'étude}
+
+Ce travail innove en associant une IA légère au standard RiC-O pour analyser les registres d'état civil anciens en Afrique subsaharienne.
+Il répond à un double problème : les projets actuels de modernisation s'intéresse principalement aux actes futurs en oubliant les archives du passé.
+Créer une solution autonome et économe en calcul constitue une avancée clé pour la gestion du patrimoine archivistique africain.
+
+Cette ambition s'accompagne toutefois de limites assumées.
+L'étude s'appuie sur un corpus restreint de 500 à 1000 --- \emph{[A MAJ]} --- actes en langue française, constituant une preuve de concept destinée à valider la viabilité d'un modèle, sans visée de déploiement industriel.
+Par conséquent, le profil d'application RiC-O développé demeure simplifié et ne prétend pas modéliser de manière exhaustive la diversité complexe des pratiques de parenté d'Afrique subsaharienne.
+Enfin, le caractère multidisciplinaire de ce travail --- à l'intersection de l'archivistique, de la vision par ordinateur, du traitement automatique des langues --- privilégie une intégration globale au détriment de l'approfondissement isolé de chaque domaine, l'efficacité du dispositif est en dernier ressort évaluée par la mise en pratique du prototype plutôt que par la seule cohérence théorique du modèle.
+
+\section*{Organisation du document}
+
+Ce mémoire s'articule en quatre chapitres.
+Le premier dresse un état de l'art croisé des standards archivistiques, des techniques d'extraction sémantique et des enjeux de la gouvernance documentaire en Afrique subsaharienne.
+Le second expose le cadre méthodologique et le protocole expérimental retenus, en précisant les choix de modélisation ontologique et les critères d'évaluation.
+Le troisième chapitre est consacré à la mise en œuvre technique du prototype --- de la préparation du corpus manuscrit au déploiement du triplestore --- et présente les résultats obtenus à l'issue de cette mise en œuvre.
+Le quatrième chapitre discute ces résultats à la lumière des hypothèses et des questions de recherche formulées ci-dessus, en évalue les implications en matière de performance computationnelle, de précision d'extraction et de viabilité du graphe, et ouvre sur les perspectives de déploiement à l'échelle sous-régionale.
+Le document se termine par une conclusion générale qui synthétise les apports majeurs de l'étude.
