@@ -56,11 +56,24 @@
 
 % --- Titres des sections ---
 \usepackage{titlesec}
-\titleformat{\chapter}[hang]
-{\bfseries\huge}
-{\chaptername\ \thechapter\ : }
-{0em}
+
+% 1. Pour les chapitres numérotés (avec ligne fine et grand "Chapitre X")
+\titleformat{\chapter}[display]
+{\normalfont}
+{\LARGE\bfseries\chaptername\ \thechapter}
+{2em}
+{\titlerule[0.4pt]\vspace{2em}\centering\LARGE\bfseries}
+
+% 2. Pour les chapitres non numérotés (Introduction, Conclusion, etc. sans ligne fine)
+\titleformat{name=\chapter,numberless}[display]
+{\normalfont}
 {}
+{0pt}
+{\centering\huge\bfseries}
+
+% Espacement vertical global des chapitres
+\titlespacing*{\chapter}{0pt}{0pt}{40pt}
+
 % --- Hyperliens ---
 \usepackage[colorlinks=true, allcolors=black]{hyperref}
 
