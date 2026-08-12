@@ -5,6 +5,7 @@
 \usepackage[english,french]{babel}
 \usepackage{lmodern}
 \usepackage{microtype}
+\usepackage[acronym]{glossaries}
 
 % --- Mise en page (Geometry) ---
 \usepackage{geometry}
@@ -75,22 +76,21 @@
 % Espacement vertical global des chapitres
 \titlespacing*{\chapter}{0pt}{0pt}{40pt}
 
-% --- Hyperliens ---
-\usepackage[colorlinks=true, allcolors=black]{hyperref}
-
 % --- Bibliographie (BibLaTeX) ---
 \usepackage[
   backend=biber,
-  style=apa,
-  language=french
+  style=ieee,
+  citestyle=numeric
 ]{biblatex}
 
 % Associe les règles de langue française spécifiques à l'APA
-\DeclareLanguageMapping{french}{french-apa}
+% \DeclareLanguageMapping{french}{french-apa}
 
 % Optionnel : met le "et al." en italique
 \DefineBibliographyStrings{french}{andothers = {\textit{et~al.}}}
 \addbibresource{bibliography/references.bib}
+% --- Hyperliens ---
+\usepackage[colorlinks=true, allcolors=black]{hyperref}
 
 % --- Environnement pour les citations longues (Long quote) ---
 \newenvironment{longquote}{
