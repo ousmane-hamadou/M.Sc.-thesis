@@ -1,74 +1,105 @@
 \chapter{Revue de littérature}
 \label{chap:etat_art}
-Ce chapitre inscrit le mémoire dans trois corpus complémentaires : la gouvernance documentaire et la numérisation de l'état civil en Afrique subsaharienne; les standards de description archivistique; et enfin, les techniques de traitement automatique des langues et d'IA applicables aux documents manuscrits.
+Ce chapitre inscrit le mémoire dans trois corpus complémentaires : la gouvernance documentaire et la numérisation de l'état civil en Afrique subsaharienne; les standards de description archivistique ; et les techniques de traitement automatique applicables aux documents manuscrits.
 
-Le chapitre s'articule en cinq sections. Les deux premières décrivent le contexte institutionnel et documentaire. La troisième analyse les standards archivistiques. La quatrième examine les techniques d'extraction sémantique sur manuscrits. La cinquième aborde la question de la frugalité computationnelle.
+Il s'organise en cinq sections : les dynamiques institutionnelles de l'état civil, les registres manuscrits comme patrimoine documentaire, les standards descriptifs, les chaînes d'extraction sémantique et la frugalité computationnelle.
 
 \section{État civil, gouvernance documentaire et dynamiques régionales de numérisation}
 
 \subsection{Gouvernance documentaire publique et rôle archivistique de l'état civil}
-La gouvernance documentaire désigne l'ensemble des politiques, responsabilités et procédures encadrant la création, la capture et la gestion des documents d'activité tout au long de leur cycle de vie, conformément aux principes de l'ISO 15489-1\string:2016.
-Selon cette norme, un \og record \fg{} est une information conservée comme preuve d'une activité ou d'une obligation légale \cite{iso2016-15489}.
-L'acte d'état civil, établi par un officier public en vertu de la loi, constitue ainsi une preuve officielle d'un événement et engage la responsabilité de l'administration.
+
+La gouvernance documentaire désigne l'ensemble des politiques, responsabilités et procédures encadrant la création, la capture et la gestion des documents d'activité tout au long de leur cycle de vie.
+Selon l'ISO 15489-1\string:2016, un \og record \fg{} est une information conservée comme preuve d'une activité ou d'une obligation légale \cite{iso2016-15489}.
+Établi par une autorité compétente, l'acte d'état civil constitue ainsi une preuve officielle d'un événement vital et relève de la responsabilité de l'administration qui le produit et le conserve.
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.8\textwidth]{figures/interconnection_de_etat_civil.png}
-    \caption{Schéma des fonctions interconnectées de l'état civil}
+    \caption{Schéma des fonctions interconnectées de l'état civil. \textit{Source : l'auteur, réalisé avec Excalidraw}}
     \label{fig:interconnection_de_etat_civil}
 \end{figure}
 
-L'état civil est donc à la fois un \textit{record} actif --- alimentant les statistiques démographiques nécessaires à la planification publique --- et un \textit{record} passif ou patrimonial --- faisant preuve d'une filiation historique \cite{un2023guidelines,HandbookCivilRegistration2023}. Leur valeur probatoire impose que les actes demeurent authentiques, fiables, intègres et exploitables, afin d’en garantir l’origine, la fidélité du contenu, la protection contre les altérations et la possibilité de les retrouver et interpréter \cite{ica2008module2}
-
+L'état civil remplit des fonctions administrative, probatoire et statistique : ses actes documentent notamment l'identité juridique, l'âge et la filiation, tout en alimentant les statistiques démographiques nécessaires à l'action publique \cite{un2023guidelines,HandbookCivilRegistration2023}.
+Leur valeur probatoire exige qu'ils restent authentiques, fiables, intègres et exploitables \cite{ica2008module2}.
 
 Ces propriétés structurent la problématique de ce mémoire.
-Une chaîne d'indexation sémantique qui inférerait des relations non attestées ne remettrait pas en cause l'intégrité de l'acte source, mais réduirait la fiabilité de la couche de connaissances dérivée et d'induire des interprétations erronées.
+Une indexation sémantique qui produirait des relations non attestées ne modifierait pas l'acte source, mais risquerait de réduire la fiabilité de la couche de connaissances dérivée.
 
-Le rôle archivistique de l'état civil se distingue enfin par sa dimension cumulative : un acte de naissance peut être mobilisé ultérieurement dans le cadre d'un mariage, d'une succession ou d'autres démarches administratives.
-Leur intérêt réside donc à la fois dans le contenu de chaque acte et dans les relations de filiation, de déclaration ou d'union qui les relient.
-Cette interdépendance justifie l'étude d'une représentation en graphe, dont la section 1.3 examinera la compatibilité avec RiC-O.
+Le rôle archivistique de l'état civil se distingue enfin par sa dimension cumulative : un acte de naissance peut être mobilisé lors d'un mariage, d'une succession ou d'une autre procédure administrative.
+Leur valeur réside donc aussi dans les liens de filiation, de déclaration ou d'union qui les relient.
+Cette interdépendance rend pertinente l'étude d'une représentation en graphe, examinée dans la section consacrée à RiC-O.
 
 \subsection{Réformes de numérisation en Afrique subsaharienne}
 
-Depuis la fin des années 2010, les politiques de modernisation de l'état civil se sont renforcées dans plusieurs pays d'Afrique subsaharienne.
-Elles associent, selon les contextes, l'informatisation de l'enregistrement courant, la numérisation des registres existants, l'extension des points de déclaration et l'interconnexion progressive des services \cite{unionAfricaine2019numerisation,uneca2024crvs}.
+Depuis la fin des années 2010, plusieurs pays d'Afrique subsaharienne ont renforcé la modernisation de l'état civil.
+Ces réformes combinent, selon les contextes, informatisation de l'enregistrement courant, numérisation des registres existants, extension des points de déclaration et interconnexion des services \cite{unionAfricaine2019numerisation,uneca2024crvs}.
 
 Le programme sénégalais \textit{NEKKAL} combine deux logiques généralement traitées séparément ailleurs : l'interconnexion des centres d'état civil, qui vise la cohérence du système à l'échelle nationale, et le traitement du stock existant, par la numérisation puis l'indexation des actes déjà produits \cite{civipol2023nekkal}.
-Cette seconde composante — l'indexation, distincte de la simple numérisation — rapproche NEKKAL de la problématique de ce mémoire, à ceci près que l'indexation y demeure d'une granularité documentaire, retrouver un acte, plutôt que sémantique, retrouver une relation entre personnes.
-Financé à hauteur de 28 millions d'euros par l'Union européenne, le programme NEKKAL témoigne de l'ampleur des moyens a mobilisé pour moderniser l'état civil.
-Dans cette perspective, une chaîne de traitement frugale pourrait renforcer la soutenabilité du dispositif en limitant ses coûts.
+Cette seconde composante --- l'indexation, distincte de la simple numérisation --- rapproche NEKKAL de la problématique de ce mémoire, à ceci près que l'indexation y demeure d'une granularité documentaire, retrouver un acte, plutôt que sémantique, retrouver une relation entre personnes.
+% Financé à hauteur de 28 millions d'euros par l'Union européenne, le programme NEKKAL témoigne de l'ampleur des moyens a mobilisé pour moderniser l'état civil.
+% Dans cette perspective, une chaîne de traitement frugale pourrait renforcer la soutenabilité du dispositif en limitant ses coûts.
 
-Le dispositif burkinabè \textit{iCivil} suit une logique principalement prospective : il permet l'enregistrement numérique et centralisé des faits d'état civil dès leur survenance. \cite{ogp2023burkina}.
-Cette orientation améliore la capture des nouveaux événements, mais ne renseigne pas, dans les sources consultées, sur les modalités de traitement, d'indexation ou de structuration sémantique des registres manuscrits antérieurs.
-La reprise de ce stock historique demeure donc un enjeu distinct, que le présent mémoire se propose d'examiner.
+Au Burkina Faso, \textit{iCivil} privilégie l'enregistrement numérique des faits d'état civil dès leur survenance et leur transmission vers un registre centralisé.
+La réforme prévoit également la digitalisation de certains registres et l'interconnexion des centres \cite{ogp2023burkina}.
+Les sources consultées ne précisent toutefois pas de dispositif d'indexation sémantique des registres manuscrits.
 
-En Côte d'Ivoire, Grand-Bassam a servi de site pilote pour le déploiement du logiciel Cityweb : plus de 205 000 actes issus de 1 715 registres y ont été numérisés, avec un objectif d'indexation, d'intégration au Registre national des personnes physiques et de mise en place de services en ligne \cite{aimf2024grandbassam}.
-En République du Congo, le projet annoncé porte sur la numérisation des archives d'état civil produites par les mairies et les administrations déconcentrées et décentralisées \cite{quenum2024congo}.
+En Côte d'Ivoire, le projet pilote de Grand-Bassam a porté sur la numérisation de plus de 205\,000 actes issus de 1\,715 registres, avec un objectif d'indexation, d'intégration au Registre national des personnes physiques et de développement de services en ligne \cite{aimf2024grandbassam}.
+En République du Congo, un projet annoncé vise la numérisation des archives d'état civil produites par les mairies et les administrations territoriales \cite{quenum2024congo}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/représentation_cycle_de_vie_acte.png}
+    \caption{Cycle de vie de l'acte d'État civil et couverture des reformes actuelles. \textit{Source : l'auteur, réalisé avec Excalidraw}}
+    \label{fig:lifecycle_of_registers}
+\end{figure}
 
 Ces deux démarches illustrent des modalités distinctes de déploiement progressif : expérimentation locale préalable à une éventuelle extension nationale dans le cas ivoirien, et projet de collecte et de conversion numérique à périmètre national dans le cas congolais.
 Les sources consultées ne documentent toutefois pas de représentation sémantique des liens entre personnes et événements.
 Le présent mémoire examine précisément la faisabilité d'une telle structuration pour les registres manuscrits.
 
-Au Cameroun, la loi n\textsuperscript{o}~2024/001 régissant les archives fixe un cadre national pour la gestion et la sécurisation des archives et prévoit un Système national d'archivage, sans définir encore de dispositif spécifique pour la numérisation de l'état civil \cite{cameroun2024loiarchives}.
+Au Cameroun, la loi n\textsuperscript{o}~2024/001 du 24 juillet 2024 régissant les archives fixe un cadre général pour la gestion, la conservation, la sécurisation et la modernisation des archives \cite{cameroun2024loiarchives}.
+Elle ne définit toutefois pas de chaîne opérationnelle spécifique de transcription, de résolution d'entités ou d'indexation sémantique des registres d'état civil manuscrits.
 Ce mémoire examine précisément les conditions techniques et méthodologiques d'une telle exploitation.
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figures/représentation_cycle_de_vie_acte.png}
-    \caption{Cycle de vie de l'acte d'État civil et couverture des reformes actuelles}
-    \label{fig:lifecycle_of_registers}
-\end{figure}
-
-Ce positionnement met en évidence une convergence entre les réformes examinées : aucune ne franchit, à ce jour, le seuil de l'indexation sémantique. Cette observation, justifie que le présent travail --- une approche ontologique dédiée --- se concentre sur les deux dernières étapes du cycle plutôt que sur la numérisation elle-même, déjà bien couverte par la littérature et les initiatives recensées.
+Comme l'illustre la Figure~\ref{fig:lifecycle_of_registers}, les réformes examinées couvrent principalement l'enregistrement numérique, la numérisation et, dans certains cas, l'indexation documentaire.
+Les sources publiques consultées ne décrivent pas de dispositif d'indexation sémantique reliant explicitement personnes, événements et actes.
+Le mémoire se situe à ce niveau, en évaluant la transformation de registres manuscrits en données relationnelles, traçables et interrogeables.
 
 \section{Les registres manuscrits d'état civil comme patrimoine documentaire}
 
-Après avoir situé l'état civil dans les dynamiques de gouvernance documentaire et de réforme régionale, cette section resserre l'analyse sur l'objet documentaire lui-même : le registre manuscrit, ses caractéristiques matérielles, et la valeur qu'il conserve malgré, ou à cause de, sa fragilité.
+Cette section examine les registres manuscrits comme objets matériels, administratifs et probatoires.
+Leur état de conservation conditionne directement la qualité des images produites lors de la numérisation et, par conséquent, les performances des outils de reconnaissance automatique examinés en section 1.4.
 
 \subsection{Diversité matérielle, scripturaire et enjeux de conservation}
 
-Au-delà de leur statut juridique, les registres manuscrits d'état civil sont des objets matériels soumis aux mêmes contraintes physiques que tout fonds patrimonial ancien. Cette matérialité, à peine évoquée dans l'introduction générale, conditionne directement la qualité des images numériques produites en amont de toute chaîne d'extraction automatique, et donc la performance atteignable par les modèles de reconnaissance présentés en section 1.4.
+Les registres d'état civil peuvent présenter des formats, supports, encres, écritures et formulaires variables selon les périodes et les lieux de production.
+Les études consacrées aux manuscrits d'Afrique subsaharienne documentent des difficultés comparables de conservation, liées à la variabilité des supports et à leur vulnérabilité environnementale \cite{abdoulahi2019contribution,ala2005batiments}.
+Ce rapprochement relève toutefois d'une analogie matérielle : les corpus diffèrent par leur fonction, leur langue et leurs conditions de production.
 
-La diversité des supports rencontrés dans les centres d'état civil recoupe, par son ampleur, celle documentée pour d'autres type de fonds manuscrits d'Afrique subsaharienne : variation du grammage et de la qualité du papier selon les périodes d'approvisionnement, encres de composition différente dont la lisibilité se dégrade inégalement, formulaires manuscrits ou pré-imprimés selon les décennies et les circonscriptions, densité d'écriture variable selon les officiers d'état civil successifs. Un ouvrage collectif consacré aux manuscrits en péril d'Afrique subsaharienne, dont un volet est spécifiquement consacré au Cameroun, dresse un constat convergent pour les fonds patrimoniaux de la région — un constat déjà pressenti, pour le cas malien, par les travaux consacrés à la numérisation des manuscrits arabes de Tombouctou \cite{abdoulahi2019contribution}. Ces deux corpus diffèrent profondément des registres d'état civil par leur nature, manuscrits littéraires, juridiques ou religieux plutôt qu'administratifs, et par leur langue. Leur rapprochement avec le corpus de ce mémoire relève donc de l'analogie matérielle, variabilité des supports et vulnérabilité climatique, plutôt que d'une continuité de contenu.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.99\textwidth]{figures/facteurs-exploitabilite.png}
+    \caption{Facteurs affectant l'exploitabilité des registres manuscrits. \textit{Source : l'auteur, réalisé avec Excalidraw}}
+    \label{fig:facteurs-exploitabilite}
+\end{figure}
 
-Trois familles de facteurs expliquent la dégradation observée. Les facteurs climatiques, d'abord : chaleur et humidité relative élevées, caractéristiques de larges portions du territoire camerounais, accélèrent les réactions chimiques de dégradation du papier et favorisent le développement de moisissures lorsque les conditions de stockage ne permettent pas de les réguler. Les facteurs biologiques, ensuite : insectes bibliophages et moisissures s'attaquent aussi bien au support qu'à l'encre. Les facteurs mécaniques, enfin : pliures répétées, déchirures et manipulations fréquentes fragilisent des registres consultés régulièrement à des fins administratives, à la différence de fonds patrimoniaux plus rarement sollicités. Ces trois familles ne s'excluent pas : un papier fragilisé par l'humidité résiste moins bien à la manipulation, ce qui accélère à son tour la déchirure.
+Dans les contextes où les conditions de conservation ne sont pas régulées, la température, l'humidité, les moisissures, les insectes et les manipulations répétées peuvent dégrader le papier et les encres.
+Ces facteurs affectent la lisibilité des actes et augmentent la difficulté de leur transcription automatique.
+Ils imposent donc de documenter, pour chaque corpus, l'état matériel des registres afin d'interpréter les résultats de reconnaissance et d'extraction.
+La dégradation physique n'annule pas la valeur probatoire de l'acte, mais elle peut limiter son accessibilité et son exploitabilité.
+La Figure~\ref{fig:facteurs-exploitabilite} synthétise les facteurs susceptibles d'affecter l'exploitabilité des registres.
+
+\subsection{Valeur probatoire des actes anciens et préservation numérique en contexte de ressources limitées}
+
+Les actes d'état civil anciens peuvent conserver une valeur probatoire durable lorsqu'ils restent authentifiables, intègres et rattachables à une autorité compétente.
+Ils constituent des preuves importantes de l'identité juridique, de l'âge ou de la filiation, notamment en l'absence de documents contemporains \parencite{uneca2020status,un2023guidelines}.
+
+La numérisation améliore l'accès aux registres fragiles, mais ne remplace ni leur conservation physique ni leur valeur juridique.
+Les travaux consacrés à la préservation numérique dans les bibliothèques universitaires sud-africaines mettent notamment en évidence des difficultés de financement pérenne, de compétences spécialisées, d'obsolescence technologique et d'infrastructure \parencite{masenyaFactorsThatInfluence2020,masenyaDigitalPreservationPractices2019}.
+Ces résultats fournissent un point de comparaison utile pour les institutions archivistiques disposant de ressources limitées, sans pouvoir être généralisés mécaniquement à tous les services d'état civil.
+
+Dans cette perspective, la numérisation doit être distinguée de l'exploitation sémantique.
+Le graphe de connaissances doit donc être conçu comme une couche sémantique dérivée, traçable et explicitement reliée aux actes sources.
+L'enjeu n'est pas de remplacer l'acte original, mais d'en améliorer l'exploitabilité sans produire d'assertions non attestées.
+
+\section{Standards et modèles de description archivistique}
