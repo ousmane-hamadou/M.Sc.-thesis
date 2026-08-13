@@ -103,3 +103,59 @@ Le graphe de connaissances doit donc être conçu comme une couche sémantique d
 L'enjeu n'est pas de remplacer l'acte original, mais d'en améliorer l'exploitabilité sans produire d'assertions non attestées.
 
 \section{Standards et modèles de description archivistique}
+
+Le choix d’un modèle de représentation adapté aux relations présentes dans les actes d’état civil suppose de distinguer les fonctions de préservation, de description hiérarchique et de description sémantique.
+Cette section examine les principaux standards mobilisables avant de présenter RiC-O, retenu comme cadre de modélisation dans ce mémoire.
+
+\subsection{Modèles classiques : OAIS, EAD et Dublin Core}
+
+Le modèle OAIS (\textit{Open Archival Information System}), normalisé par l’ISO 14721, constitue un cadre de référence pour la préservation numérique.
+Il décrit les fonctions d’un système d’archivage --- versement, stockage, gestion des données, administration, planification de la préservation et accès --- ainsi que les paquets d’information qui circulent entre elles.
+OAIS éclaire donc l’organisation nécessaire à la conservation durable des archives, sans définir la représentation sémantique du contenu d'un document : il ne dit rien de la manière de représenter un acte de naissance et les personnes qu'il met en relation.
+Sa pertinence pour ce mémoire est donc réelle mais indirecte —-- il éclaire les fonctions que devra assumer l'infrastructure de conservation, sans se substituer à un modèle sémantique du contenu.
+
+EAD (\textit{Encoded Archival Description}) est un standard XML destiné à l’encodage des instruments de recherche archivistiques.
+Il permet de décrire un fonds à plusieurs niveaux, du fonds à la pièce, selon une organisation généralement hiérarchique.
+Il peut ainsi situer un acte dans son contexte de production et conserver des informations descriptives à son sujet.
+Toutefois, EAD ne fournit pas, à lui seul, un modèle explicite d’entités persistantes permettant de relier, à travers plusieurs actes, un officier d’état civil, un déclarant, un enfant, des parents ou un événement selon des relations sémantiques typées.
+
+Dublin Core propose un vocabulaire générique de métadonnées destiné à la découverte et à l’échange de ressources hétérogènes.
+Dans sa version simple, il repose sur quinze éléments tels que le titre, le créateur, le sujet ou la date.
+Ce niveau de généralité facilite l’interopérabilité minimale, mais demeure insuffisant pour distinguer systématiquement les rôles spécifiques intervenant dans un acte d’état civil.
+Une propriété comme \texttt{creator} peut désigner une personne ou une organisation responsable de la ressource, sans exprimer nécessairement la fonction précise exercée dans l’acte.
+
+Pris isolément, OAIS, EAD et Dublin Core répondent donc à des besoins complémentaires : préservation du système, description hiérarchique des fonds et découverte de ressources.
+Ils ne fournissent toutefois pas un modèle archivistique complet permettant de représenter explicitement les relations entre les personnes, les événements et les actes d’état civil.
+Cette limite motive l’étude d’une approche fondée sur RiC-O.
+
+\subsection{Records in Contexts et l’ontologie RiC-O : principes, structure et interopérabilité}
+
+Développé par le Groupe d’experts en description archivistique (EGAD) du Conseil international des archives depuis 2012, le standard \textit{Records in Contexts} (RiC) a été conçu comme un successeur des quatre normes descriptives antérieures de l’ICA : ISAD(G), ISAAR(CPF), ISDF et ISDIAH.
+Il vise à les articuler dans un cadre conceptuel commun, centré sur les entités archivistiques et leurs contextes plutôt que sur des descriptions produites séparément.
+
+RiC comporte quatre parties complémentaires : les fondements de la description archivistique (RiC-FAD), le modèle conceptuel (RiC-CM), l’ontologie (RiC-O) et les lignes directrices d’application (RiC-AG).
+Les versions 1.0 de RiC-FAD, RiC-CM et RiC-O ont été publiées fin 2023 ; RiC-AG demeure en cours d’élaboration \textbf{ica2023ricrelease,ica2025ricwebinar}.
+RiC-O, dans sa version 1.1, est une ontologie OWL 2 qui formalise RiC-CM et fournit un vocabulaire ainsi que des règles formelles pour produire des jeux de données RDF décrivant des ressources archivistiques et leurs contextes \parencite{icaegad2025rico11,clavaudica}.
+
+L’apport de RiC-O tient à sa modélisation orientée entités-relations.
+Documents, agents, lieux, événements, activités et règles de gestion peuvent être représentés comme des entités distinctes et reliés au moyen de propriétés explicites.
+Un acte de naissance peut ainsi être décrit à la fois comme une ressource archivistique, comme la trace d’un événement et comme un document associé à plusieurs agents exerçant des rôles différents.
+Cette approche ne résout pas automatiquement l’identification des personnes ni l’extraction du contenu manuscrit ; elle fournit le cadre nécessaire pour représenter, documenter et interroger les relations établies à partir des actes.
+
+Les jeux de données produits en RDF peuvent être reliés à d’autres vocabulaires et référentiels, puis interrogés au moyen de SPARQL lorsqu’ils sont stockés dans une infrastructure compatible.
+L’interopérabilité effective dépend toutefois des choix de modélisation, de la stabilité des identifiants, des règles de transformation, de la provenance des assertions et de la gouvernance des données.
+RiC-O constitue ainsi un cadre de référence, non une solution technique complète de peuplement ou d’exploitation d’un graphe.
+
+\subsection{Profils d’application RiC-O : état des lieux}
+
+RiC-O est une ontologie générique : son application à un domaine particulier suppose de sélectionner les classes et propriétés pertinentes, de définir des contraintes d’usage et, si nécessaire, de documenter des extensions.
+Les futures lignes directrices RiC-AG ont précisément vocation à fournir aux professionnels et aux développeurs des recommandations et des exemples de mise en œuvre de RiC-CM et RiC-O \textbf{ica2023ricfad}.
+
+Les démonstrations actuellement disponibles portent principalement sur la conversion ou l’exploitation de métadonnées archivistiques existantes, notamment issues d’EAD, d’EAC-CPF ou de METS.
+Elles ne constituent pas nécessairement des profils de production applicables tels quels à l’état civil.
+Dans les ressources consultées, aucun profil RiC-O spécifiquement consacré aux registres d’état civil manuscrits, et a fortiori aux corpus d’Afrique subsaharienne, n’a été identifié.
+
+Cette lacune ne signifie pas que le domaine est absent de RiC-O : le standard fournit des mécanismes génériques pour représenter des documents, agents, événements, lieux et relations.
+Elle indique plutôt que les règles d’application propres à l’état civil --- modélisation de la filiation, distinction des rôles, gestion des actes associés, traitement des informations incertaines et provenance des assertions --- restent à définir et à évaluer.
+C’est dans cet espace que s’inscrit l’objectif scientifique OS2 du mémoire.
+
