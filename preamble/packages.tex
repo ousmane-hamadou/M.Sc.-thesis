@@ -5,7 +5,9 @@
 \usepackage[english,french]{babel}
 \usepackage{lmodern}
 \usepackage{microtype}
-\usepackage[acronym]{glossaries}
+\usepackage[acronym,toc]{glossaries}
+\makeglossaries
+\input{preamble/glossaire_acronymes.tex}
 
 % --- Mise en page (Geometry) ---
 \usepackage{geometry}
@@ -41,6 +43,9 @@
 \usepackage{multirow} % Pour fusionner des lignes si nécessaire
 \usepackage{array}
 \usepackage{float}
+\usepackage{tabularx}
+\usepackage{xltabular}
+\usepackage{listings}
 
 % --- En-têtes et Pieds de page ---
 \usepackage{fancyhdr}

@@ -1,0 +1,145 @@
+\chapter{Expérimentation, résultats et discussion}
+\label{chap:experimentations}
+
+Le chapitre~2 a défini un protocole expérimental complet --- corpus, pipeline,
+métriques d'efficacité et de frugalité --- sans toutefois formuler d'hypothèses
+de recherche formelles, faute de mesures permettant de fixer les seuils de
+dégradation acceptable sur une base empirique plutôt qu'arbitraire
+(section~2.5.2). Ce chapitre met ce protocole à l'épreuve : il rapporte les
+mesures pilotes qui permettent de formuler ces hypothèses, présente les résultats
+obtenus pour chacun des modules du pipeline formalisé en section~2.4.1, puis en
+propose une discussion critique.
+
+Il poursuit trois objectifs successifs. D'abord, un objectif de calibrage :
+conduire les mesures pilotes nécessaires à la formulation d'hypothèses de
+recherche précises, plutôt que génériques ou arbitrairement fixées. Ensuite, un
+objectif de mesure : rapporter, module par module --- reconnaissance manuscrite,
+extraction sémantique, résolution d'entités et peuplement du graphe ---, la
+qualité et la frugalité effectivement obtenues, présentées conjointement pour
+chaque module conformément au cadre de dominance frugale posé en section~2.1.2.
+Enfin, un objectif d'interprétation : replacer ces résultats chiffrés dans la
+perspective critique attendue d'un travail de recherche, en particulier au regard
+des lacunes identifiées au chapitre~1 et du compromis précision/frugalité au
+cœur de la contribution de ce mémoire.
+
+Le périmètre de ce chapitre appelle une précision. La discussion critique des
+résultats est volontairement concentrée dans une section dédiée (section~3.6),
+plutôt que dispersée au fil de leur présentation : cette dernière (sections~3.3
+à~3.5) reste descriptive, au plus près des chiffres obtenus, pour que
+l'interprétation --- nécessairement plus sujette à discussion --- soit clairement
+identifiable comme telle plutôt que mêlée à la présentation des faits. La portée
+générale de la contribution du mémoire, au-delà des résultats propres à ce
+chapitre, ainsi que les perspectives de travaux futurs, ne sont pas traitées ici
+mais dans la Conclusion générale qui suit ce chapitre.
+
+Le chapitre est organisé en six sections. La section~3.1, déjà présentée, a établi
+le cadre expérimental et les conditions de reproductibilité. La section~3.2
+rapporte les mesures pilotes et formule les hypothèses de recherche qui en
+résultent. Les sections~3.3, 3.4 et~3.5 présentent respectivement les résultats
+du module de reconnaissance manuscrite, du module d'extraction sémantique, et de
+la résolution d'entités et du peuplement du graphe de connaissances. La
+section~3.6, enfin, discute ces résultats à la lumière des hypothèses formulées
+en section~3.2 et du positionnement établi au chapitre~1.
+
+\section{Cadre expérimental et reproductibilité}
+
+\subsection{Environnement matériel et logiciel}
+
+Les expérimentations sont conduites sur la même machine que celle mobilisée pour
+la collecte du corpus (section~2.3.1) : un ThinkPad~T460, 12~Go de RAM, 256~Go de
+stockage SSD, sans GPU dédié. Ce choix n'est pas fortuit : il incarne concrètement,
+au niveau du cadre expérimental lui-même, le principe retenu en section~2.1.3 ---
+une infrastructure ancienne et largement répandue plutôt qu'un équipement
+spécialisé, cohérente avec la contrainte \og machine standard sans GPU \fg{} déjà
+posée pour les métriques de frugalité (section~2.5.2).
+
+% TODO : compléter le modèle exact de processeur et les versions logicielles
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Environnement logiciel}
+    \label{tab:environnement-logiciel}
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{Composant}                                      & \textbf{Version} \\
+        \midrule
+        Python                                                  & [à compléter]    \\
+        Kraken                                                  & [à compléter]    \\
+        \texttt{transformers} / \texttt{peft} (NER, LoRA/QLoRA) & [à compléter]    \\
+        OpenCV (prétraitement, section~2.3.2)                   & [à compléter]    \\
+        GraphDB (section~2.4.6)                                 & [à compléter]    \\
+        \texttt{jiwer} (calcul CER/WER)                         & [à compléter]    \\
+        \texttt{seqeval} (calcul P/R/$F_1$ NER)                 & [à compléter]    \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Corpus de test et répartition entraînement/validation/test}
+
+Le corpus mobilisé pour les expérimentations est celui décrit en section~2.3.1 :
+1568~actes collectés à la mairie de Koumra (Tchad), majoritairement des actes de
+naissance. Deux sous-ensembles annotés en sont extraits, selon les protocoles de
+la section~2.3.3 : une vérité de terrain HTR via eScriptorium, et un jeu d'entités
+et de relations annoté via Label Studio --- ces deux sous-ensembles ne portant pas
+nécessairement sur les mêmes actes, l'annotation HTR opérant au niveau de la ligne
+et l'annotation NER/RE au niveau de l'acte entier.
+
+Pour le module HTR, la répartition entraînement/validation/test s'effectue au
+niveau de la \emph{ligne}, unité de traitement native de Kraken (section~2.4.2),
+selon une proportion de 70~\%/15~\%/15~\%, sous la contrainte déjà posée en
+section~2.4.2 : les lignes d'un même acte ne peuvent apparaître dans plus d'un
+ensemble à la fois, afin d'éviter toute fuite de données entre ensembles. Pour le
+module NER/RE, la répartition s'effectue au niveau de l'\emph{acte}, dans la même
+proportion, stratifiée par type d'acte pour préserver, dans chacun des trois
+ensembles, la proportion relative de naissances, mariages et décès observée dans
+le corpus global --- une stratification qui atténue, sans l'éliminer, le
+déséquilibre entre types d'actes déjà relevé comme limite en section~2.5.3.
+
+% TODO : compléter une fois l'annotation stabilisée
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Répartition des sous-ensembles annotés}
+    \label{tab:repartition-ensembles}
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Sous-ensemble}      & \textbf{Entraînement} & \textbf{Validation} & \textbf{Test} \\
+        \midrule
+        Lignes HTR (eScriptorium)   & [à compléter]         & [à compléter]       & [à compléter] \\
+        Actes NER/RE (Label Studio) & [à compléter]         & [à compléter]       & [à compléter] \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Protocole et outils de mesure}
+
+Les métriques d'efficacité définies en section~2.5.1 sont calculées à l'aide
+d'outils standard plutôt que d'implémentations propres, pour limiter le risque
+d'erreur de calcul et faciliter la reproduction par un tiers. Le CER et le WER
+sont calculés avec \texttt{jiwer}, sur la définition posée en section~2.5.1
+(distance d'édition entre transcription et référence). La précision, le rappel et
+le score $F_1$ du module NER sont calculés avec \texttt{seqeval}, au niveau de
+l'entité (span et type identiques à la référence), plutôt qu'au niveau du token,
+conformément à la section~2.5.1. Aucun outil standard n'existant pour l'évaluation
+de relations définies sur mesure, celle du module RE repose sur un script
+d'évaluation dédié, comparant les triplets (type, source, cible) produits par les
+règles positionnelles (section~2.4.3) aux relations attendues, annotées manuellement
+sur l'échantillon prévu à cet effet (section~2.5.1).
+
+Les métriques de frugalité (section~2.5.2) suivent un protocole de mesure explicite
+plutôt qu'une mesure ponctuelle isolée. Le temps de traitement par acte est mesuré
+en excluant le chargement initial du modèle --- amorti une seule fois, non
+représentatif du coût récurrent d'exploitation --- et rapporté sur plusieurs
+exécutions répétées (médiane, minimum et maximum) plutôt que sur une seule mesure,
+pour limiter l'effet du bruit de mesure inhérent à une machine partagée avec
+d'autres processus. La mémoire vive est mesurée par l'empreinte mémoire résidente
+maximale (RSS) du processus pendant l'inférence ; la mémoire vidéo, lorsqu'un GPU
+est mobilisé --- exclusivement pour l'entraînement, non pour les mesures de
+frugalité en inférence qui restent conduites sans GPU (section~2.5.2) ---, est
+rapportée séparément et n'est pas comparable aux mesures de RAM. La taille sur
+disque correspond à la taille du fichier de poids sauvegardé --- modèle complet
+pour Kraken (section~2.4.2), adaptateur seul pour les configurations LoRA/QLoRA
+du module NER (section~2.4.4), ce qui suppose de préciser, au moment de la
+présentation des résultats (section~3.4.3), si la comparaison porte sur la taille
+de l'adaptateur seul ou sur l'ensemble modèle de base~+~adaptateur nécessaire à
+l'inférence.

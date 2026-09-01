@@ -1,0 +1,295 @@
+% ================================================================
+% GLOSSAIRE ET ACRONYMES -- glossaire_acronymes.tex
+% ================================================================
+% Intégration :
+%   1) Dans le PRÉAMBULE du document principal (après \documentclass,
+%      avant \begin{document}) :
+%
+%         \usepackage[acronym,toc]{glossaries}
+%         \makeglossaries
+%         \input{glossaire_acronymes}   % ce fichier
+%
+%   2) À l'endroit où les listes doivent apparaître (typiquement en
+%      front matter, après la table des matières et avant le
+%      chapitre 1) :
+%
+%         \printglossary[type=\acronymtype, title={Liste des acronymes et abréviations}]
+%         \printglossary[title={Glossaire}]
+%
+%   3) Dans la chaîne de compilation, exécuter makeglossaries entre
+%      deux passages de (pdf)latex :
+%         pdflatex memoire.tex
+%         makeglossaries memoire
+%         pdflatex memoire.tex
+%         pdflatex memoire.tex
+% ================================================================
+
+
+% ----------------------------------------------------------------
+% ACRONYMES ET ABRÉVIATIONS (ordre alphabétique des clés)
+% ----------------------------------------------------------------
+
+\newacronym{bio2}{BIO2}{Beginning-Inside-Outside (schéma d'étiquetage de séquence à deux préfixes, B/I, plus O pour hors-entité)}
+\newacronym{bilstm}{BiLSTM}{Bidirectional Long Short-Term Memory}
+\newacronym{bpe}{BPE}{Byte Pair Encoding}
+\newacronym{cer}{CER}{Character Error Rate (taux d'erreur caractère)}
+\newacronym{clahe}{CLAHE}{Contrast Limited Adaptive Histogram Equalization}
+\newacronym{cnn}{CNN}{Convolutional Neural Network (réseau de neurones convolutif)}
+\newacronym{cpu}{CPU}{Central Processing Unit}
+\newacronym{crf}{CRF}{Conditional Random Field (champ aléatoire conditionnel)}
+\newacronym{ctc}{CTC}{Connectionist Temporal Classification}
+\newacronym{dsr}{DSR}{Design Science Research}
+\newacronym{ead}{EAD}{Encoded Archival Description}
+\newacronym{eaccpf}{EAC-CPF}{Encoded Archival Context for Corporate Bodies, Persons and Families}
+\newacronym{egad}{EGAD}{Expert Group on Archival Description (Groupe d'experts en description archivistique, ICA)}
+\newacronym{f1}{$F_1$}{$F_1$-score (moyenne harmonique de la précision et du rappel)}
+\newacronym{gpu}{GPU}{Graphics Processing Unit}
+\newacronym{hdr}{HDR}{High Dynamic Range}
+\newacronym{hmm}{HMM}{Hidden Markov Model (modèle de Markov caché)}
+\newacronym{hsv}{HSV}{Hue, Saturation, Value (espace colorimétrique teinte-saturation-valeur)}
+\newacronym{htr}{HTR}{Handwritten Text Recognition}
+\newacronym{ica}{ICA}{International Council on Archives (Conseil international des archives)}
+\newacronym{isadg}{ISAD(G)}{General International Standard Archival Description}
+\newacronym{isaarcpf}{ISAAR(CPF)}{International Standard Archival Authority Record for Corporate Bodies, Persons and Families}
+\newacronym{isdf}{ISDF}{International Standard for Describing Functions}
+\newacronym{isdiah}{ISDIAH}{International Standard for Describing Institutions with Archival Holdings}
+\newacronym{iso}{ISO}{International Organization for Standardization (Organisation internationale de normalisation)}
+\newacronym{jsonld}{JSON-LD}{JavaScript Object Notation for Linked Data}
+\newacronym{llm}{LLM}{Large Language Model}
+\newacronym{lora}{LoRA}{Low-Rank Adaptation}
+\newacronym{mets}{METS}{Metadata Encoding and Transmission Standard}
+\newacronym{ner}{NER}{Named Entity Recognition}
+\newacronym{nf4}{NF4}{4-bit NormalFloat}
+\newacronym{nni}{NNI}{Numéro National d'Identité}
+\newacronym{oais}{OAIS}{Open Archival Information System}
+\newacronym{ocr}{OCR}{Optical Character Recognition}
+\newacronym{owl}{OWL}{Web Ontology Language}
+\newacronym{ptq}{PTQ}{Post-Training Quantization}
+\newacronym{qlora}{QLoRA}{Quantized Low-Rank Adaptation}
+\newacronym{rawdng}{RAW/DNG}{format d'image brute non compressée (Digital Negative)}
+\newacronym{rdf}{RDF}{Resource Description Framework}
+\newacronym{re}{RE}{Relation Extraction}
+\newacronym{ric}{RiC}{Records in Contexts}
+\newacronym{ricag}{RiC-AG}{Records in Contexts -- Application Guidelines (lignes directrices d'application)}
+\newacronym{riccm}{RiC-CM}{Records in Contexts -- Conceptual Model (modèle conceptuel)}
+\newacronym{ricfad}{RiC-FAD}{Records in Contexts -- fondements de la description archivistique}
+\newacronym{rico}{RiC-O}{Records in Contexts Ontology}
+\newacronym{rnn}{RNN}{Recurrent Neural Network}
+\newacronym{slm}{SLM}{Small Language Model}
+\newacronym{sparql}{SPARQL}{SPARQL Protocol and RDF Query Language}
+\newacronym{tal}{TAL}{Traitement Automatique des Langues}
+\newacronym{uri}{URI}{Uniform Resource Identifier}
+\newacronym{vgsl}{VGSL}{Variable-size Graph Specification Language (langage de spécification d'architecture de Kraken)}
+\newacronym{vlm}{VLM}{Vision-Language Model}
+\newacronym{wer}{WER}{Word Error Rate (taux d'erreur mot)}
+\newacronym{xsd}{XSD}{XML Schema Definition}
+
+
+% ----------------------------------------------------------------
+% GLOSSAIRE -- Volet 1 : numérisation et reconnaissance manuscrite
+% ----------------------------------------------------------------
+
+\newglossaryentry{htrgloss}{
+    name={HTR (reconnaissance de l'écriture manuscrite)},
+    description={Ensemble des techniques visant à convertir automatiquement une image d'écriture manuscrite en texte exploitable. Contrairement à l'OCR, conçu pour l'imprimé, la HTR doit gérer la variabilité des tracés, la liaison entre lettres (cursive) et l'absence fréquente de frontières nettes entre caractères. Les approches modernes (CRNN+CTC, Transformer encodeur-décodeur) sont dites \emph{segmentation-free} : elles reconnaissent une ligne entière sans découper préalablement en caractères.}
+}
+
+\newglossaryentry{ocrgloss}{
+    name={OCR},
+    description={Reconnaissance optique de caractères, appliquée à du texte imprimé ou dactylographié dont les glyphes sont réguliers et l'espacement connu. Les moteurs OCR classiques (Tesseract, par exemple) échouent généralement sur l'écriture manuscrite, faute d'un mécanisme d'alignement implicite comparable au CTC ou à l'attention séquence-à-séquence.}
+}
+
+\newglossaryentry{segmentationfree}{
+    name={Approche \emph{segmentation-free}},
+    description={Paradigme de reconnaissance qui traite directement une ligne de texte entière plutôt que de la découper en caractères avant classification. Le modèle apprend implicitement l'alignement entre position dans l'image et caractère produit, ce qui évite les erreurs de segmentation préalable propres aux approches classiques.}
+}
+
+\newglossaryentry{ctcgloss}{
+    name={Perte CTC},
+    description={Fonction de perte permettant d'entraîner un modèle de reconnaissance de séquence sans alignement explicite entre l'entrée (image) et la sortie (texte). Elle somme les probabilités de tous les chemins d'étiquettes qui, une fois compressés (fusion des répétitions, suppression des blancs), produisent la séquence cible.}
+}
+
+\newglossaryentry{binarisation}{
+    name={Binarisation},
+    description={Conversion d'une image en niveaux de gris en une image binaire texte/fond, par un seuillage global (Otsu) ou local/adaptatif (Sauvola). Le seuillage adaptatif est préféré pour des documents dégradés ou photographiés en éclairage inégal, cas typique d'une prise de vue de terrain au smartphone.}
+}
+
+\newglossaryentry{deskewing}{
+    name={Redressement (\emph{deskewing})},
+    description={Correction de l'inclinaison d'une image de document, généralement estimée à partir des lignes détectées (par exemple via une transformée de Hough), afin d'aligner le texte horizontalement avant transcription.}
+}
+
+\newglossaryentry{blocking}{
+    name={Blocage (\emph{blocking})},
+    description={Stratégie de réduction de la complexité d'une résolution d'entités, qui restreint les comparaisons probabilistes aux paires de mentions partageant une même clé de blocage plutôt que de comparer exhaustivement toutes les paires. Réduit la complexité de $O(M^2)$ à $O(M^2/B)$ pour $B$ blocs, au prix d'un risque de faux négatifs si deux mentions liées ne partagent pas la même clé.}
+}
+
+
+% ----------------------------------------------------------------
+% GLOSSAIRE -- Volet 2 : NLP, extraction sémantique et graphes
+% ----------------------------------------------------------------
+
+\newglossaryentry{nergloss}{
+    name={NER (reconnaissance d'entités nommées)},
+    description={Tâche consistant à identifier et typer, dans un texte, les mentions de personnes, lieux, dates, professions ou institutions. Traitée aujourd'hui comme une classification de chaque token par un modèle de langue pré-entraîné et affiné (\emph{fine-tuning}) sur un corpus annoté.}
+}
+
+\newglossaryentry{regloss}{
+    name={RE (extraction de relations)},
+    description={Tâche établissant des liens typés entre des entités déjà identifiées par le NER (filiation, déclaration, domiciliation, témoignage, etc.). Chaque relation extraite peut être représentée par un triplet (sujet, prédicat, objet) directement compatible avec le modèle RDF.}
+}
+
+\newglossaryentry{transformergloss}{
+    name={Transformer},
+    description={Architecture de réseau de neurones fondée sur le mécanisme d'auto-attention, qui met en relation directe chaque position d'une séquence avec toutes les autres, sans propagation séquentielle comme dans un réseau récurrent. Socle commun des modèles de reconnaissance de séquences (TrOCR) et des modèles de langue pré-entraînés (BERT, CamemBERT).}
+}
+
+\newglossaryentry{attention}{
+    name={Mécanisme d'attention},
+    description={Fonction qui pondère l'importance de chaque élément d'une séquence pour représenter une position donnée, calculée comme $\mathrm{Attention}(Q,K,V)=\mathrm{softmax}(QK^\top/\sqrt{d_k})V$ à partir de projections requête ($Q$), clé ($K$) et valeur ($V$). L'attention multi-têtes applique ce mécanisme en parallèle sur plusieurs sous-espaces pour capturer différents types de relations.}
+}
+
+\newglossaryentry{finetuning}{
+    name={Fine-tuning (affinage)},
+    description={Poursuite de l'entraînement d'un modèle pré-entraîné sur un corpus spécifique à la tâche visée, en s'appuyant sur les représentations déjà apprises pour réduire le volume de données annotées nécessaire. Peut porter sur l'ensemble des poids (fine-tuning complet) ou sur un sous-ensemble économe en paramètres (LoRA, QLoRA).}
+}
+
+\newglossaryentry{recordlinkage}{
+    name={Résolution d'entités (\emph{record linkage})},
+    description={Détermination, pour deux mentions extraites de documents distincts, si elles désignent la même personne. Le modèle probabiliste de Fellegi et Sunter compare un vecteur d'accord entre attributs et le classe en lien, non-lien ou lien incertain selon deux seuils, plutôt que d'imposer une décision binaire forcée.}
+}
+
+\newglossaryentry{kg}{
+    name={Graphe de connaissances},
+    description={Structure formalisable comme un triplet $G=(V,E,L)$ où $V$ est l'ensemble des entités, $E$ l'ensemble des relations orientées entre elles, et $L$ une fonction associant à chaque nœud et arête un type issu d'une ontologie contrôlée. Permet des requêtes relationnelles (chaîne de filiation, actes liés à une personne) impossibles sur une indexation purement lexicale.}
+}
+
+\newglossaryentry{indexationsemantique}{
+    name={Indexation sémantique},
+    description={Ajout, à l'indexation lexicale fondée sur les formes textuelles, d'une couche d'entités et de relations typées, construite à partir du NER, de la RE et de la résolution d'entités. Réduit certains silences documentaires liés aux seules variations de graphie, sans supprimer les silences dus à une extraction manquante.}
+}
+
+\newglossaryentry{rdfgloss}{
+    name={RDF},
+    description={Modèle de représentation de données du Web sémantique, où toute assertion est un triplet sujet-prédicat-objet ; sujets et objets sont des ressources identifiées par un URI ou des valeurs littérales, formant un graphe orienté et étiqueté.}
+}
+
+\newglossaryentry{owlgloss}{
+    name={OWL},
+    description={Langage d'ontologie qui enrichit RDF de constructions logiques (classes, propriétés, restrictions de cardinalité, relations de subsomption) permettant l'inférence automatique de nouvelles assertions à partir d'assertions explicites.}
+}
+
+\newglossaryentry{sparqlgloss}{
+    name={SPARQL},
+    description={Langage d'interrogation standard des graphes RDF, par appariement de motifs de triplets. Utilisé pour interroger le graphe de connaissances stocké dans un triplestore tel que GraphDB.}
+}
+
+\newglossaryentry{triplestore}{
+    name={Triplestore},
+    description={Base de données spécialisée dans le stockage et l'interrogation de triplets RDF (par exemple GraphDB ou Apache Jena Fuseki), à distinguer d'une base de graphe orientée propriétés (par exemple Neo4j), dont le modèle de données et le langage de requête (Cypher) diffèrent du modèle RDF/OWL.}
+}
+
+\newglossaryentry{cidoccrm}{
+    name={CIDOC-CRM},
+    description={Ontologie développée pour le patrimoine culturel, proposant une modélisation centrée sur l'événement (\emph{event-centric}) : une naissance, un mariage ou un décès y sont des événements reliant personnes, lieux et dates.}
+}
+
+\newglossaryentry{foafgloss}{
+    name={FOAF},
+    description={Vocabulaire RDF (\emph{Friend of a Friend}) centré sur la personne et ses relations sociales, pertinent pour représenter les liens de filiation, de mariage ou de témoignage extraits d'un acte d'état civil.}
+}
+
+
+% ----------------------------------------------------------------
+% GLOSSAIRE -- Volet 3 : frugalité computationnelle
+% ----------------------------------------------------------------
+
+\newglossaryentry{frugalite}{
+    name={Frugalité numérique},
+    description={Propriété mesurable d'une chaîne de traitement complète (qualité documentaire, mémoire, temps de traitement, dépendance matérielle), et non la seule taille du modèle le plus petit. Formalisée dans ce mémoire comme un problème d'optimisation sous contrainte : maximiser une fonction de qualité $Q(\Theta)$ sous un budget de ressources $C(\Theta)\preceq C_{\max}$.}
+}
+
+\newglossaryentry{ptqgloss}{
+    name={Quantification post-entraînement (PTQ)},
+    description={Conversion des poids (et éventuellement des activations) d'un modèle déjà entraîné vers une précision numérique inférieure (par exemple FP32 vers INT8), sans ré-entraînement. Une passe de calibration sur un petit échantillon suffit à estimer les facteurs d'échelle, au prix d'une robustesse généralement moindre que l'entraînement conscient de la quantification (QAT) aux formats les plus agressifs.}
+}
+
+\newglossaryentry{distillationgloss}{
+    name={Distillation de connaissances},
+    description={Entraînement d'un modèle élève compact à reproduire le comportement d'un modèle enseignant plus complexe, à partir des probabilités \og douces \fg{} de l'enseignant (obtenues via une température $T>1$ dans le softmax) plutôt que des seules étiquettes de référence.}
+}
+
+\newglossaryentry{elagage}{
+    name={Élagage (\emph{pruning})},
+    description={Suppression des paramètres d'un réseau dont la contribution à la sortie est jugée négligeable, par exemple les poids dont la valeur absolue est inférieure à un seuil (élagage par magnitude). Un élagage structuré (neurones, canaux, têtes d'attention entiers) accélère davantage l'inférence sur du matériel généraliste qu'un élagage non structuré.}
+}
+
+\newglossaryentry{loragloss}{
+    name={LoRA},
+    description={Méthode d'adaptation paramétrique efficiente qui approxime la mise à jour des poids nécessaire à la spécialisation d'un modèle par une décomposition de rang faible $\Delta W = BA$, ramenant le nombre de paramètres entraînés de $d\times k$ à $r(d+k)$ pour $r \ll \min(d,k)$, la matrice de base restant gelée.}
+}
+
+\newglossaryentry{qloragloss}{
+    name={QLoRA},
+    description={Extension de LoRA combinant adaptation de rang faible et quantification : le modèle de base est quantifié sur 4 bits (format NF4) et gelé, seules les matrices d'adaptation étant entraînées en précision standard.}
+}
+
+\newglossaryentry{greenai}{
+    name={Green AI},
+    description={Courant de recherche appelant à rapporter systématiquement le coût computationnel (énergie, matériel, temps) des modèles d'intelligence artificielle au même titre que leur performance, plutôt que d'optimiser cette dernière seule.}
+}
+
+\newglossaryentry{dominancefrugale}{
+    name={Dominance frugale},
+    description={Relation de comparaison entre deux configurations d'une chaîne de traitement : une configuration $\Theta_i$ domine $\Theta_j$ si son coût est inférieur ou égal sur toutes les dimensions de ressources et si la perte de qualité associée reste sous un seuil de dégradation acceptable $\delta$ fixé avant l'évaluation.}
+}
+
+
+% ----------------------------------------------------------------
+% GLOSSAIRE -- Volet 4 : gouvernance documentaire et archivage
+% ----------------------------------------------------------------
+
+\newglossaryentry{gouvernancedoc}{
+    name={Gouvernance documentaire},
+    description={Ensemble des politiques, responsabilités et procédures encadrant la création, la capture et la gestion des documents d'activité tout au long de leur cycle de vie, afin d'en garantir l'authenticité, la fiabilité, l'intégrité et l'exploitabilité.}
+}
+
+\newglossaryentry{oaisgloss}{
+    name={OAIS},
+    description={Modèle de référence normalisé (ISO 14721) pour la préservation numérique, décrivant les fonctions d'un système d'archivage (ingestion, stockage, gestion, accès, planification de la préservation) et les paquets d'information échangés entre elles. Ne prescrit aucun modèle de représentation sémantique du contenu préservé.}
+}
+
+\newglossaryentry{eadgloss}{
+    name={EAD},
+    description={Standard XML d'encodage des instruments de recherche archivistiques, structurant un fonds de façon hiérarchique (fonds, séries, dossiers, pièces) selon la norme ISAD(G). Ne fournit pas de modèle d'entités persistantes pour relier une même personne à travers plusieurs documents.}
+}
+
+\newglossaryentry{dublincoregloss}{
+    name={Dublin Core},
+    description={Vocabulaire minimal et générique de métadonnées (quinze éléments : titre, créateur, sujet, date, etc.), conçu pour la découverte de ressources hétérogènes à l'échelle du Web, sans mécanisme dédié pour typer les relations entre ressources ou personnes.}
+}
+
+\newglossaryentry{ricgloss}{
+    name={Records in Contexts (RiC)},
+    description={Standard de description archivistique développé par l'EGAD du Conseil international des archives, conçu comme cadre unificateur des normes ISAD(G), ISAAR(CPF), ISDF et ISDIAH. Comprend quatre parties : RiC-FAD, RiC-CM, RiC-O et RiC-AG.}
+}
+
+\newglossaryentry{ricogloss}{
+    name={RiC-O},
+    description={Ontologie OWL~2 formalisant le modèle conceptuel RiC-CM, fournissant vocabulaire et règles formelles pour produire des jeux de données RDF décrivant des ressources archivistiques et leurs contextes. Retenue dans ce mémoire pour sa modélisation entités-relations, absente d'OAIS, EAD et Dublin Core.}
+}
+
+\newglossaryentry{profilapplication}{
+    name={Profil d'application},
+    description={Sélection, au sein d'une ontologie générique comme RiC-O, des classes et propriétés pertinentes pour un domaine particulier, accompagnée de contraintes d'usage et, si nécessaire, d'extensions locales -- ici, un profil dédié aux actes d'état civil manuscrits d'Afrique subsaharienne.}
+}
+
+\newglossaryentry{souverainetenum}{
+    name={Souveraineté numérique},
+    description={Capacité d'un État à contrôler ses infrastructures numériques, ses données et ses processus technologiques, sans dépendre d'une juridiction, d'un fournisseur ou d'une infrastructure externes échappant à son autorité -- enjeu central pour une donnée aussi sensible que l'état civil.}
+}
+
+\newglossaryentry{dsrgloss}{
+    name={Design Science Research (DSR)},
+    description={Paradigme méthodologique de recherche articulant des objectifs scientifiques (production de connaissances, proposition de modèles conceptuels) et des objectifs opérationnels (mise en œuvre technique, constitution de jeux de données, protocoles expérimentaux), adapté à une recherche produisant des artefacts (pipeline, ontologie, prototype).}
+}

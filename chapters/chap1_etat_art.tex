@@ -1,155 +1,523 @@
 \chapter{Revue de littérature}
 \label{chap:etat_art}
-Ce chapitre inscrit le mémoire dans trois corpus complémentaires : la gouvernance documentaire et la numérisation de l'état civil en Afrique subsaharienne; les standards de description archivistique ; et les techniques de traitement automatique applicables aux documents manuscrits.
 
-Il s'organise en cinq sections : les dynamiques institutionnelles de l'état civil, les registres manuscrits comme patrimoine documentaire, les standards descriptifs, les chaînes d'extraction sémantique et la frugalité computationnelle.
+Ce chapitre dresse un état de l'art de ces quatre corpus de littérature en les articulant autour d'un même fil conducteur : le passage du registre manuscrit d'état civil à une ressource archivistique structurée, interrogeable et durable, sous contrainte de frugalité computationnelle.
 
-\section{État civil, gouvernance documentaire et dynamiques régionales de numérisation}
+\section{État civil, gouvernance documentaire et dynamiques de numérisation en Afrique subsaharienne}
+\label{sec:gouvernance-etat-civil}
 
-\subsection{Gouvernance documentaire publique et rôle archivistique de l'état civil}
+\subsection{L'état civil comme patrimoine documentaire et enjeu de gouvernance publique}
+\label{sec:etat-civil-patrimoine}
 
 La gouvernance documentaire désigne l'ensemble des politiques, responsabilités et procédures encadrant la création, la capture et la gestion des documents d'activité tout au long de leur cycle de vie.
-Selon l'ISO 15489-1\string:2016, un \og record \fg{} est une information conservée comme preuve d'une activité ou d'une obligation légale \cite{iso2016-15489}.
-Établi par une autorité compétente, l'acte d'état civil constitue ainsi une preuve officielle d'un événement vital et relève de la responsabilité de l'administration qui le produit et le conserve.
+Selon l'ISO~15489-1:2016, un \og record \fg{} est une information conservée comme preuve d'une activité ou d'une obligation légale \cite{iso2016-15489}.
+Établi par une autorité compétente, l'acte d'état civil constitue une preuve officielle d'un événement vital et relève de la responsabilité de l'administration qui le produit et le conserve.
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figures/interconnection_de_etat_civil.png}
-    \caption{Schéma des fonctions interconnectées de l'état civil. \textit{Source : l'auteur, réalisé avec Excalidraw}}
-    \label{fig:interconnection_de_etat_civil}
-\end{figure}
+L'état civil remplit des fonctions administrative, probatoire et statistique : ses actes documentent l'identité juridique, l'âge et la filiation, tout en alimentant les statistiques démographiques nécessaires à l'action publique \cite{un2023guidelines,HandbookCivilRegistration2023}.
+Leur valeur probatoire exige qu'ils restent authentiques, fiables, intègres et exploitables \cite{ica2008module2} --- des propriétés qui structurent directement la problématique du présent mémoire : une indexation sémantique qui produirait des relations non attestées ne modifierait pas l'acte source, mais réduirait la fiabilité de la couche de connaissances qui en est dérivée.
 
-L'état civil remplit des fonctions administrative, probatoire et statistique : ses actes documentent notamment l'identité juridique, l'âge et la filiation, tout en alimentant les statistiques démographiques nécessaires à l'action publique \cite{un2023guidelines,HandbookCivilRegistration2023}.
-Leur valeur probatoire exige qu'ils restent authentiques, fiables, intègres et exploitables \cite{ica2008module2}.
+Le rôle archivistique de l'état civil se distingue enfin par sa dimension cumulative et relationnelle : un acte de naissance peut être mobilisé lors d'un mariage, d'une succession ou d'une autre procédure administrative, et sa valeur réside autant dans son contenu propre que dans les liens de filiation, de déclaration ou d'union qui le relient à d'autres actes. Cette interdépendance justifie l'intérêt d'une représentation en graphe, examinée en section~\ref{sec:ric-o} à travers le modèle RiC-O.
 
-Ces propriétés structurent la problématique de ce mémoire.
-Une indexation sémantique qui produirait des relations non attestées ne modifierait pas l'acte source, mais risquerait de réduire la fiabilité de la couche de connaissances dérivée.
+\subsection{Défis structurels : couverture, pertes et fraude documentaire}
+\label{sec:defis-structurels}
 
-Le rôle archivistique de l'état civil se distingue enfin par sa dimension cumulative : un acte de naissance peut être mobilisé lors d'un mariage, d'une succession ou d'une autre procédure administrative.
-Leur valeur réside donc aussi dans les liens de filiation, de déclaration ou d'union qui les relient.
-Cette interdépendance rend pertinente l'étude d'une représentation en graphe, examinée dans la section consacrée à RiC-O.
+Au-delà de la conservation matérielle des registres, la gouvernance de l'état civil en Afrique subsaharienne se heurte à trois difficultés structurelles qui éclairent directement l'intérêt d'une chaîne de traitement automatisée.
+
+La première concerne la couverture de l'enregistrement. Selon le dernier état des lieux de l'UNICEF, seulement 51~\% des enfants de moins de cinq ans sont enregistrés à la naissance en Afrique subsaharienne, contre 95~\% en Amérique latine et 94~\% en Asie de l'Est ; la région concentre à elle seule la moitié des enfants non déclarés dans le monde, soit environ 90~millions d'individus \cite{unicef2024birthregistration}.
+Cette couverture reste en outre très inégale selon les sous-régions, l'Afrique australe atteignant 88~\% quand l'Afrique centrale et l'Afrique de l'Est plafonnent à 41~\% \cite{unicef2024birthregistration}.
+Un acte non déclaré ne pose évidemment pas de problème d'indexation --- il n'existe simplement pas encore dans le système ---, mais ce déficit structurel éclaire l'importance accordée par les réformes régionales (section~\ref{sec:reformes-numerisation}) à la simplification et à la numérisation des procédures.
+
+La deuxième difficulté touche à la conservation même des registres existants.
+Les sinistres affectant les bâtiments administratifs constituent une menace récurrente et documentée : au Cameroun, l'incendie de la mairie de Yaoundé~VI en septembre~2023 a détruit une partie des archives d'état civil qui y étaient conservées, privant durablement les usagers concernés d'accès à leurs actes \cite{koaci2023yaounde}.
+De tels sinistres --- auxquels s'ajoutent les dégâts liés à l'humidité et à la dégradation progressive des supports, examinés en section~\ref{sec:specificites-afrique} --- rappellent que le registre papier, unique support de preuve dans de nombreux services, constitue un point de défaillance unique : sa perte est en général irréversible, contrairement à une ressource numérisée et répliquée.
+
+La troisième difficulté est la fraude documentaire, favorisée par la faiblesse de certains dispositifs de contrôle et par l'absence de vérification croisée entre actes liés.
+Des opérations de démantèlement récentes illustrent le mécanisme le plus courant : la production d'actes de naissance fictifs à partir de registres parallèles non officiels, non cotés ni clôturés par une autorité judiciaire \cite{sentv2025reseaufraude}.
+L'ampleur exacte du phénomène reste toutefois difficile à établir avec certitude : les statistiques souvent citées dans les rapports administratifs européens reposent sur des méthodologies de vérification consulaire dont la littérature académique a interrogé la représentativité et le mode de calcul \cite{ferre2010soupconfraude}.
+Ce que ces travaux mettent néanmoins en évidence, de façon convergente, c'est la vulnérabilité structurelle d'un système où l'authentification d'un acte repose sur un contrôle documentaire isolé plutôt que sur la cohérence d'un ensemble de relations vérifiables --- un argument qui rejoint directement l'intérêt d'une couche d'indexation relationnelle et traçable, telle qu'envisagée dans ce mémoire.
 
 \subsection{Réformes de numérisation en Afrique subsaharienne}
+\label{sec:reformes-numerisation}
 
-Depuis la fin des années 2010, plusieurs pays d'Afrique subsaharienne ont renforcé la modernisation de l'état civil.
-Ces réformes combinent, selon les contextes, informatisation de l'enregistrement courant, numérisation des registres existants, extension des points de déclaration et interconnexion des services \cite{unionAfricaine2019numerisation,uneca2024crvs}.
+Depuis la fin des années 2010, plusieurs pays d'Afrique subsaharienne ont engagé la modernisation de leur état civil, combinant selon les contextes informatisation de l'enregistrement courant, numérisation du stock existant, extension des points de déclaration et interconnexion des services \cite{unionAfricaine2019numerisation,uneca2024crvs}.
 
-Le programme sénégalais \textit{NEKKAL} combine deux logiques généralement traitées séparément ailleurs : l'interconnexion des centres d'état civil, qui vise la cohérence du système à l'échelle nationale, et le traitement du stock existant, par la numérisation puis l'indexation des actes déjà produits \cite{civipol2023nekkal}.
-Cette seconde composante --- l'indexation, distincte de la simple numérisation --- rapproche NEKKAL de la problématique de ce mémoire, à ceci près que l'indexation y demeure d'une granularité documentaire, retrouver un acte, plutôt que sémantique, retrouver une relation entre personnes.
-% Financé à hauteur de 28 millions d'euros par l'Union européenne, le programme NEKKAL témoigne de l'ampleur des moyens a mobilisé pour moderniser l'état civil.
-% Dans cette perspective, une chaîne de traitement frugale pourrait renforcer la soutenabilité du dispositif en limitant ses coûts.
+Le programme sénégalais \textit{NEKKAL} illustre cette double logique : interconnexion des centres d'état civil à l'échelle nationale d'une part, numérisation puis indexation du stock d'actes déjà produits d'autre part \cite{civipol2023nekkal}. Financé à hauteur de 28~millions d'euros par l'Union européenne \cite{eeas2025nekkalfinancement}, ce programme donne la mesure des moyens mobilisables à l'échelle nationale --- une échelle qui met en perspective l'intérêt d'une chaîne de traitement frugale pour des contextes ne disposant pas de ressources comparables. Son volet indexation demeure toutefois de granularité documentaire (retrouver un acte) plutôt que sémantique (retrouver une relation entre personnes), ce qui rapproche NEKKAL de la problématique du mémoire sans s'y confondre.
 
-Au Burkina Faso, \textit{iCivil} privilégie l'enregistrement numérique des faits d'état civil dès leur survenance et leur transmission vers un registre centralisé.
-La réforme prévoit également la digitalisation de certains registres et l'interconnexion des centres \cite{ogp2023burkina}.
-Les sources consultées ne précisent toutefois pas de dispositif d'indexation sémantique des registres manuscrits.
+D'autres démarches nationales complètent ce panorama sans intégrer, à ce stade, de dimension sémantique explicite.
+Au Burkina Faso, \textit{iCivil} privilégie l'enregistrement numérique dès la survenance du fait d'état civil et sa transmission vers un registre centralisé, avec une digitalisation partielle des registres existants \cite{ogp2023burkina}.
+En Côte d'Ivoire, le projet pilote de Grand-Bassam a porté sur la numérisation et l'indexation de plus de 205\,000~actes issus de 1\,715~registres, préalablement à une extension nationale envisagée \cite{aimf2024grandbassam}.
+En République du Congo, un projet annoncé vise la numérisation des archives produites par les mairies et administrations territoriales \cite{quenum2024congo}.
+Au Cameroun, la loi n\textsuperscript{o}~2024/001 du 24~juillet~2024 relative aux archives fixe un cadre général de gestion, de conservation et de modernisation, sans toutefois définir de chaîne opérationnelle de transcription, de résolution d'entités ou d'indexation sémantique des registres manuscrits \cite{cameroun2024loiarchives}.
 
-En Côte d'Ivoire, le projet pilote de Grand-Bassam a porté sur la numérisation de plus de 205\,000 actes issus de 1\,715 registres, avec un objectif d'indexation, d'intégration au Registre national des personnes physiques et de développement de services en ligne \cite{aimf2024grandbassam}.
-En République du Congo, un projet annoncé vise la numérisation des archives d'état civil produites par les mairies et les administrations territoriales \cite{quenum2024congo}.
+Aucune des sources publiques consultées ne décrit de dispositif reliant explicitement, sous forme structurée, personnes, événements et actes.
+Le mémoire se situe précisément à ce niveau : évaluer la faisabilité d'une transformation de registres manuscrits en données relationnelles, traçables et interrogeables, dans un contexte où l'échelle de financement des réformes nationales (à l'image de NEKKAL) reste hors de portée de nombreuses administrations locales.
+
+\section{De l'image au texte : reconnaissance de l'écriture manuscrite (HTR)}
+\label{sec:htr}
+
+\subsection{Prétraitement des images de registres}
+\label{sec:pretraitement}
+
+Avant toute reconnaissance, une photographie de registre doit être binarisée, redressée et recadrée sur sa zone utile : une image brute, prise en conditions de terrain, présente un éclairage inégal, une inclinaison et un fond parasite (bords du registre, page voisine) que le moteur HTR ne peut interpréter directement.
+
+\begin{figure}[htbp]
+    \centering
+    % Image A - Éclairage inégal
+    \begin{subfigure}[b]{0.31\textwidth}
+        \centering
+        \includegraphics[height=0.22\textheight, keepaspectratio]{figures/eclairage.jpg}
+        \caption{Éclairage inégal}
+        \label{subfig:eclairage}
+    \end{subfigure}
+    \hspace{2pt} % Équivalent à votre marge de 2 pixels
+    % Image B - Inclinaison
+    \begin{subfigure}[b]{0.31\textwidth}
+        \centering
+        \includegraphics[height=0.22\textheight, keepaspectratio]{figures/inclinaison.jpg}
+        \caption{Inclinaison}
+        \label{subfig:inclinaison}
+    \end{subfigure}
+    \hspace{2pt} % Équivalent à votre marge de 2 pixels
+    % Image C - Fond parasite
+    \begin{subfigure}[b]{0.31\textwidth}
+        \centering
+        \includegraphics[height=0.22\textheight, keepaspectratio]{figures/fond_parasite.jpg}
+        \caption{Fond parasite}
+        \label{subfig:fond}
+    \end{subfigure}
+
+    % Légende globale de la figure complète
+    \caption{Exemple représentatif (anonymisé) d'un acte d'état civil manuscrit du corpus, collecté à la mairie de Koumra (Tchad).}
+    \label{fig:acte-manuscrit-koumra}
+\end{figure}
+
+
+Trois familles de méthodes classiques structurent cette étape. La \emph{binarisation} convertit l'image en niveaux de gris en une image binaire texte/fond : un seuillage global comme celui d'Otsu, qui maximise la variance inter-classes entre pixels de texte et de fond \cite{otsu1979threshold}, suffit pour un éclairage homogène, mais se dégrade sur des documents dont l'illumination varie sur la page --- le cas courant d'une photographie de terrain plutôt que d'une numérisation en studio. Le seuillage adaptatif de Sauvola calcule au contraire un seuil local $T(x,y)$ à partir de la moyenne $m(x,y)$ et de l'écart-type $s(x,y)$ des niveaux de gris dans un voisinage :
+\begin{equation}
+    T(x,y) = m(x,y)\left[1 + k\left(\frac{s(x,y)}{R} - 1\right)\right],
+\end{equation}
+où $R$ est l'étendue dynamique de l'écart-type et $k$ un paramètre ajustable ; conçue spécifiquement pour les documents dégradés, cette méthode reste la référence pour ce type de corpus \cite{sauvola2000adaptive}.
+
+La \emph{détection de contours} localise ensuite les bords du document : l'opérateur de Sobel estime un gradient d'intensité par convolution, tandis que le détecteur de Canny --- lissage, calcul du gradient, suppression des non-maxima, seuillage par hystérésis --- produit des contours plus fins et plus robustes au bruit \cite{canny1986edge}. Ces contours alimentent enfin la \emph{détection de la zone utile} : un algorithme de suivi de frontière tel que celui de Suzuki et Abe, à la base de la détection de contours des bibliothèques de vision par ordinateur usuelles, permet d'isoler le plus grand rectangle correspondant à la zone informative de l'acte \cite{suzuki1985topological}, avant un redressement (\emph{deskewing}) estimant l'angle d'inclinaison, classiquement via une transformée de Hough sur les lignes détectées \cite{duda1972hough}.
+
+Ce prétraitement conditionne directement la qualité de la binarisation et de l'extraction de caractéristiques mobilisées par les approches examinées dans la suite de cette section (section~\ref{sec:approches-classiques-neuronales}) : une zone utile mal détectée ou un contraste insuffisant après binarisation se traduisent mécaniquement par une dégradation des performances de reconnaissance, indépendamment de la qualité du modèle HTR employé en aval.
+
+\subsection{OCR vs HTR : principes, périmètre et défi de la segmentation}
+\label{sec:ocr-vs-htr}
+
+L'OCR (reconnaissance optique de caractères) et la HTR (\textit{Handwritten Text Recognition}) partagent un objectif commun --- convertir une image de texte en une séquence de caractères exploitable --- mais reposent sur des hypothèses très différentes sur la nature du signal à traiter.
+L'OCR classique cible du texte imprimé ou dactylographié : un jeu fini de glyphes, produits par une police typographique fixe, dont l'espacement inter-caractères est régulier et généralement connu.
+Le pipeline historique de l'OCR --- segmentation en lignes puis en mots puis en caractères, classification caractère par caractère, appliquée après le prétraitement décrit en section~\ref{sec:pretraitement} --- s'appuie directement sur cette régularité géométrique \cite{Plamondon2000OnLineAO}.
+
+L'écriture manuscrite viole la quasi-totalité de ces hypothèses. Les lettres y sont souvent liées entre elles (cursive), leur forme varie fortement d'un scripteur à l'autre et, pour un même scripteur, d'une occurrence à l'autre ; les frontières entre caractères sont fréquemment ambiguës, voire inexistantes lorsque deux lettres partagent un même trait.
+Cette difficulté, identifiée de longue date dans la littérature sous le nom de \og problème de segmentation \fg{}, constitue historiquement le principal verrou de la reconnaissance manuscrite hors-ligne \cite{Plamondon2000OnLineAO}.
+Les registres d'état civil manuscrits accentuent cette difficulté : à la variabilité intrinsèque de l'écriture s'ajoutent des formulaires pré-imprimés dont seules certaines zones sont manuscrites, mêlant ainsi, sur une même image, un texte typographique fixe et un texte manuscrit variable.
+
+Ce constat a orienté la recherche vers des approches dites \textit{segmentation-free} : plutôt que de découper l'image en caractères avant de les classer, ces méthodes traitent directement une ligne de texte entière et laissent le modèle apprendre implicitement l'alignement entre position dans l'image et caractère produit.
+C'est ce changement de paradigme, développé en section~\ref{sec:approches-classiques-neuronales}, qui a permis les progrès les plus significatifs en HTR au cours de la dernière décennie.
+
+\subsection{Approches classiques et approches neuronales}
+\label{sec:approches-classiques-neuronales}
+
+Les systèmes de reconnaissance manuscrite antérieurs à l'apprentissage profond reposaient principalement sur trois familles de méthodes.
+Les approches par appariement de gabarits (\textit{template matching}) et les approches structurelles décrivaient chaque caractère par un ensemble de traits géométriques (boucles, jambages, points de croisement) comparés à des références \cite{Plamondon2000OnLineAO,mantel2005structural}.
+Les modèles de Markov cachés (HMM), hérités de la reconnaissance de la parole, traitaient l'image d'une ligne comme une séquence d'observations générées par un processus stochastique gauche-droite, chaque état correspondant à une portion de caractère \cite{291449}.
+Les champs aléatoires conditionnels (CRF) intervenaient enfin en aval, pour régulariser les sorties d'un classifieur local à l'aide de contraintes contextuelles \cite{4377085}.
+Ces trois familles nécessitaient, à des degrés divers, une segmentation préalable ou une modélisation explicite des transitions entre unités, ce qui les rendait sensibles aux erreurs de découpage évoquées en section~\ref{sec:ocr-vs-htr}.
+
+L'apprentissage profond a permis de contourner ce problème par la combinaison de réseaux convolutifs (CNN), pour l'extraction de caractéristiques visuelles locales, et de réseaux récurrents bidirectionnel (BiLSTM), pour la modélisation du contexte séquentiel le long de la ligne --- une architecture couramment désignée CRNN.
+Couplée à une fonction de perte CTC (détaillée en section~\ref{sec:formalisme-ctc-attention}), cette architecture rend la reconnaissance véritablement \textit{segmentation-free} \cite{graves2006ctc,gravesOfflineHandwritingRecognition2008}.
+C'est la lignée à laquelle appartient Kraken, qui combine un réseau hybride convolutif-récurrent avec un décodage CTC pour reconnaître directement des lignes entières sans découpage caractère par caractère \cite{kiessling2019kraken}.
+
+Plus récemment, l'architecture Transformer (détaillée en section~\ref{sec:transformer-attention}) a été adaptée à la reconnaissance de texte via des architectures encodeur-décodeur de type séquence-à-séquence.
+TrOCR en constitue l'exemple le plus représentatif : un encodeur visuel de type Vision Transformer traite l'image de la ligne, tandis qu'un décodeur autorégressif, pré-entraîné comme modèle de langue, génère la séquence de caractères en s'appuyant sur un mécanisme d'attention croisée avec les caractéristiques visuelles \cite{li2023trocr}.
+Contrairement à l'approche CRNN-CTC, ce paradigme n'impose pas d'hypothèse d'indépendance conditionnelle entre positions successives de la sortie (section~\ref{sec:formalisme-ctc-attention}) et bénéficie du pré-entraînement à grande échelle propre aux Transformers, au prix d'un coût computationnel généralement supérieur --- un compromis directement pertinent pour la section~\ref{sec:ia-frugale}.
+
+\subsection{Formalisme : perte CTC et attention pour la reconnaissance de séquences}
+\label{sec:formalisme-ctc-attention}
+
+La perte CTC (\textit{Connectionist Temporal Classification}) résout le problème de l'alignement implicite entre une séquence d'entrée $X = (x_1, \dots, x_T)$ --- typiquement une séquence de vecteurs de caractéristiques extraits colonne par colonne le long d'une ligne de texte --- et une séquence cible $y = (y_1, \dots, y_U)$ de caractères, avec $U \leq T$, sans qu'aucun alignement explicite entre les deux ne soit fourni lors de l'entraînement \cite{graves2006ctc}.
+
+Le réseau produit, à chaque pas de temps $t$, une distribution de probabilité
+$p_t(k \mid X)$ sur l'alphabet augmenté d'un symbole \og blanc \fg{} $\emptyset$.
+On appelle \textit{chemin} une séquence $\pi = (\pi_1, \dots, \pi_T)$ de longueur $T$ à valeurs dans cet alphabet augmenté.
+Une fonction de compression $\mathcal{B}$ transforme un chemin en séquence de sortie en fusionnant les répétitions consécutives puis en supprimant les blancs.
+La probabilité de la séquence cible est alors obtenue en sommant sur l'ensemble des chemins qui, une fois compressés, produisent exactement $y$ :
+\begin{equation}
+    P(y \mid X) = \sum_{\pi \,\in\, \mathcal{B}^{-1}(y)} \prod_{t=1}^{T} p_t(\pi_t
+    \mid X), \qquad \mathcal{L}_{\mathrm{CTC}} = -\log P(y \mid X)
+\end{equation}
+
+Cette somme, exponentielle en nombre de chemins, est calculée efficacement par un algorithme de programmation dynamique de type \textit{forward-backward}, analogue à celui utilisé pour les HMM \cite{graves2006ctc}.
+La perte CTC fait toutefois l'hypothèse d'une indépendance conditionnelle entre les $p_t$ à chaque pas de temps : le modèle ne conditionne pas explicitement sa prédiction en $t$ sur les caractères déjà produits, ce qui peut limiter son exploitation des régularités linguistiques locales (bigrammes, trigrammes de caractères) --- une limite qu'un \og rescoring \fg{} par modèle de langue externe permet de compenser.
+
+Les architectures de type Transformer, dont TrOCR relève, procèdent
+différemment : le décodeur génère la séquence de sortie de façon autorégressive, chaque caractère $y_u$ étant conditionné sur les caractères déjà générés $y_{<u}$ ainsi que sur les caractéristiques visuelles de l'encodeur, via un mécanisme d'attention croisée dont le formalisme général --- $\mathrm{Attention}(Q,K,V) = \mathrm{softmax}\!\left(QK^\top / \sqrt{d_k}\right)V$
+--- est détaillé en section~\ref{sec:transformer-attention} \cite{vaswani2017attention}. L'entraînement
+repose alors sur une entropie croisée token par token :
+
+\begin{equation}
+    \mathcal{L}_{\mathrm{CE}} = -\sum_{u=1}^{U} \log\, p\!\left(y_u \mid y_{<u},
+    X\right)
+\end{equation}
+
+Le choix entre ces deux formalismes n'est pas neutre : la perte CTC, plus légère et sans dépendance explicite entre positions de sortie, convient à des architectures compactes et rapides à entraîner ; la perte d'entropie croisée sur décodeur autorégressif capture davantage de régularités contextuelles mais implique un coût d'inférence séquentiel plus élevé et une plus grande sensibilité au volume de données d'entraînement. Ce compromis performance/frugalité est repris et approfondi en section~\ref{sec:ia-frugale}.
+
+\subsection{Spécificités des actes d'état civil manuscrits en contexte africain}
+\label{sec:specificites-afrique}
+
+Les registres mobilisés dans ce mémoire cumulent plusieurs difficultés qui dépassent le cadre des jeux de données de référence habituellement utilisés pour évaluer les systèmes HTR.
+
+D'une part, l'état de conservation matérielle des supports conditionne directement la qualité des images produites lors de la numérisation et, par conséquent, les performances du prétraitement (section~\ref{sec:pretraitement}) et de la reconnaissance elle-même. Dans les contextes où les conditions de conservation ne sont pas régulées, la température, l'humidité, les moisissures, les insectes et les manipulations répétées dégradent le papier et les encres, produisant des taches, des déchirures et des zones d'illisibilité partielle qui réduisent localement le contraste et la continuité des traits \cite{springmann2018groundtruth}.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.35\textwidth}
+        \centering
+        \includegraphics[height=0.33\textheight, keepaspectratio]{figures/etat_concervation1.jpg}
+    \end{subfigure}
+    \hspace{2pt}
+    \begin{subfigure}[b]{0.31\textwidth}
+        \centering
+        \includegraphics[height=0.33\textheight, keepaspectratio]{figures/etat_concervation2.jpg}
+    \end{subfigure}
+
+    \caption{État de conservation observé sur des registres du corpus au sein d'une étagère d'archives}
+    \label{fig:conservation-archives}
+\end{figure}
+
+Cette dégradation matérielle n'annule pas la valeur probatoire de l'acte (section~\ref{sec:etat-civil-patrimoine}), mais elle limite son accessibilité et son exploitabilité, et impose de documenter, pour chaque corpus, l'état matériel des registres afin d'interpréter correctement les résultats de reconnaissance et d'extraction.
+
+D'autre part, ces registres ont généralement été tenus, sur plusieurs décennies, par une succession d'officiers d'état civil différents, chacun avec sa propre graphie --- absence de norme calligraphique unifiée qui contraste avec l'homogénéité relative des corpus de référence constitués à partir d'un nombre restreint de scripteurs. Ces variations de graphie recoupent, dans le contexte tchadien et plus largement ouest et centre-africain, des évolutions successives de pratiques administratives coloniales puis postcoloniales, qui n'ont pas fait l'objet d'une caractérisation paléographique systématique comparable à celle disponible pour d'autres fonds manuscrits historiques.
+
+
+
+Enfin, la structure des actes est fréquemment bilingue ou mixte : mention de toponymes et de noms propres locaux au sein d'un texte administratif rédigé en français, sur un formulaire pré-imprimé qui juxtapose texte typographique fixe et champs manuscrits variables --- une hybridation qui complique l'application directe d'un pipeline conçu soit pour l'OCR pur, soit pour la HTR pure.
+
+\subsection{Synthèse}
+\label{sec:synthese-htr}
+
+La littérature établit de façon convergente que les moteurs OCR conçus pour l'imprimé (Tesseract, par exemple) voient leurs performances se dégrader fortement lorsqu'ils sont appliqués à de l'écriture manuscrite, faute de disposer d'un mécanisme d'alignement implicite comparable au CTC ou à l'attention séquence-à-séquence \cite{Plamondon2000OnLineAO}.
+Quantifier précisément cet écart --- en taux d'erreur caractère (CER) et taux d'erreur mot (WER) --- sur le corpus spécifique de ce mémoire constitue l'une des contributions empiriques du chapitre~3, la littérature générale ne fournissant que des ordres de grandeur obtenus sur des corpus non africains.
+
+Cette absence de corpus de référence adaptés constitue d'ailleurs la seconde lacune identifiée.
+Les jeux de données publics les plus utilisés en HTR --- IAM pour l'anglais manuscrit, RIMES pour le courrier administratif manuscrit en français \cite{grosicki2011rimes} --- ne représentent ni les graphies ni les formulaires administratifs caractéristiques des registres d'état civil d'Afrique subsaharienne.
+Cet écart de représentativité, combiné à l'absence de tout corpus annoté équivalent pour ce contexte, explique la nécessité d'un fine-tuning sur corpus propre plutôt qu'un usage direct des modèles pré-entraînés --- argument repris et développé pour le NLP en section~\ref{sec:biais-modeles}.
+
+\section{Du texte à la connaissance structurée : NLP, extraction d'entités et indexation sémantique}
+\label{sec:nlp-indexation}
+
+\subsection{Architecture Transformer et auto-attention}
+\label{sec:transformer-attention}
+
+Comme annoncé en section~\ref{sec:formalisme-ctc-attention}, l'architecture Transformer, introduite par Vaswani et al.~\cite{vaswani2017attention}, constitue le socle commun des modèles de reconnaissance de séquences (HTR) et des modèles de traitement du langage examinés dans cette section.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/représentation_cycle_de_vie_acte.png}
-    \caption{Cycle de vie de l'acte d'État civil et couverture des reformes actuelles. \textit{Source : l'auteur, réalisé avec Excalidraw}}
-    \label{fig:lifecycle_of_registers}
+    \includegraphics[height=0.35\textheight, keepaspectratio]{figures/transformer_arch.png}
+    \caption{Architecture générale du modèle Transformer (Source : Vaswani et al., 2017, Figure 1)\cite{vaswani2017attention}.}
+    \label{fig:mecanisme-attention}
 \end{figure}
 
-Ces deux démarches illustrent des modalités distinctes de déploiement progressif : expérimentation locale préalable à une éventuelle extension nationale dans le cas ivoirien, et projet de collecte et de conversion numérique à périmètre national dans le cas congolais.
-Les sources consultées ne documentent toutefois pas de représentation sémantique des liens entre personnes et événements.
-Le présent mémoire examine précisément la faisabilité d'une telle structuration pour les registres manuscrits.
+Contrairement aux réseaux récurrents, qui traitent une séquence pas à pas et propagent l'information par un état caché dont l'influence s'atténue avec la distance, le Transformer met en relation directe chaque position d'une séquence avec toutes les autres, via un mécanisme d'auto-attention (\textit{self-attention}) calculable en parallèle.
 
-Au Cameroun, la loi n\textsuperscript{o}~2024/001 du 24 juillet 2024 régissant les archives fixe un cadre général pour la gestion, la conservation, la sécurisation et la modernisation des archives \cite{cameroun2024loiarchives}.
-Elle ne définit toutefois pas de chaîne opérationnelle spécifique de transcription, de résolution d'entités ou d'indexation sémantique des registres d'état civil manuscrits.
-Ce mémoire examine précisément les conditions techniques et méthodologiques d'une telle exploitation.
+Pour une séquence de représentations $\{x_1, \dots, x_n\}$, chaque position est projetée en trois vecteurs --- une requête $Q$, une clé $K$ et une valeur $V$ --- par des matrices de poids apprises.
+L'attention par produit scalaire normalisé (\textit{scaled dot-product attention}) est alors définie par :
 
-Comme l'illustre la Figure~\ref{fig:lifecycle_of_registers}, les réformes examinées couvrent principalement l'enregistrement numérique, la numérisation et, dans certains cas, l'indexation documentaire.
-Les sources publiques consultées ne décrivent pas de dispositif d'indexation sémantique reliant explicitement personnes, événements et actes.
-Le mémoire se situe à ce niveau, en évaluant la transformation de registres manuscrits en données relationnelles, traçables et interrogeables.
+\begin{equation}
+    \mathrm{Attention}(Q, K, V) = \mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
+\end{equation}
 
-\section{Les registres manuscrits d'état civil comme patrimoine documentaire}
+où $d_k$ est la dimension des vecteurs clés ; la normalisation par $\sqrt{d_k}$ évite que les produits scalaires ne prennent des valeurs trop élevées pour de grandes dimensions, ce qui saturerait le softmax.
+L'attention multi-têtes (\textit{multi-head attention}) applique ce mécanisme en parallèle sur $h$ sous-espaces de projection distincts, permettant au modèle de capturer simultanément plusieurs types de relations (syntaxiques, sémantiques, positionnelles) :
 
-Cette section examine les registres manuscrits comme objets matériels, administratifs et probatoires.
-Leur état de conservation conditionne directement la qualité des images produites lors de la numérisation et, par conséquent, les performances des outils de reconnaissance automatique examinés en section 1.4.
+\begin{multline}
+    \mathrm{MultiHead}(Q,K,V) = \mathrm{Concat}(\mathrm{head}_1, \dots, \mathrm{head}_h)\,W^O \\
+    \text{où} \qquad \mathrm{head}_i = \mathrm{Attention}(QW_i^Q,\, KW_i^K,\, VW_i^V)
+\end{multline}
 
-\subsection{Diversité matérielle, scripturaire et enjeux de conservation}
 
-Les registres d'état civil peuvent présenter des formats, supports, encres, écritures et formulaires variables selon les périodes et les lieux de production.
-Les études consacrées aux manuscrits d'Afrique subsaharienne documentent des difficultés comparables de conservation, liées à la variabilité des supports et à leur vulnérabilité environnementale \cite{abdoulahi2019contribution,ala2005batiments}.
-Ce rapprochement relève toutefois d'une analogie matérielle : les corpus diffèrent par leur fonction, leur langue et leurs conditions de production.
+L'architecture n'ayant, par construction, aucune notion inhérente de l'ordre des positions, un encodage positionnel est ajouté aux représentations d'entrée, typiquement sous forme sinusoïdale :
 
-\begin{figure}[H]
+\begin{equation}
+    PE_{(pos,2i)} = \sin\!\left(\frac{pos}{10000^{2i/d_{\mathrm{model}}}}\right), \qquad
+    PE_{(pos,2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d_{\mathrm{model}}}}\right)
+\end{equation}
+
+Cette architecture a permis un double gain déterminant : une parallélisation complète de l'entraînement, contrairement aux RNN dont le calcul est intrinsèquement séquentiel \cite{vaswani2017attention}, et une meilleure capture des dépendances à longue distance, non pénalisée par la distance entre positions comme c'est le cas pour la propagation d'un état caché récurrent \cite{hochreiter1997lstm}.
+C'est sur ce socle que reposent les modèles de langue pré-entraînés examinés en section~\ref{sec:ner}.
+
+\subsection{Reconnaissance d'entités nommées : des CRF aux modèles pré-entraînés}
+\label{sec:ner}
+
+L'extraction d'entités nommées (NER) vise à identifier et typer, dans un texte, les mentions de personnes, de lieux, de dates, de professions ou d'institutions.
+Les registres d'état civil traitent les rôles \textit{père}, \textit{mère}, \textit{enfant} et \textit{déclarant} comme des types associés à des personnes dans le contexte d'un acte.
+
+Les approches statistiques classiques modélisent le NER comme un problème d'étiquetage de séquence.
+Les champs aléatoires conditionnels linéaires-chaînes (CRF) estiment directement la probabilité d'une séquence d'étiquettes conditionnellement à la séquence observée, sans hypothèse d'indépendance entre étiquettes voisines \cite{lafferty2001crf}.
+Les réseaux récurrents bidirectionnels couplés à une couche CRF (BiLSTM-CRF) ont ensuite permis d'apprendre les caractéristiques discriminantes directement à partir du texte, plutôt que de les définir manuellement \cite{lample2016neural}.
+
+Les modèles de langue pré-entraînés fondés sur le Transformer --- BERT \cite{devlin2019bert} et, pour le français, CamemBERT \cite{martin2020camembert} --- constituent aujourd'hui l'approche dominante.
+Le NER y est traité comme une classification de chaque \textit{token} : la représentation contextuelle $h_i$ produite par l'encodeur pour le token $i$ est projetée sur l'ensemble des étiquettes possibles via une couche linéaire suivie d'un softmax, et le modèle est affiné (\textit{fine-tuning}) sur un corpus annoté en minimisant l'entropie croisée
+
+\begin{equation}
+    \mathcal{L}_{\mathrm{NER}} = -\sum_{i=1}^{n} \log\, p(l_i \mid h_i)
+\end{equation}
+
+où $l_i$ est l'étiquette de référence du token $i$.
+Le fine-tuning ajuste l'ensemble --- ou une partie --- des paramètres du modèle pré-entraîné, en s'appuyant sur les représentations linguistiques déjà apprises lors du pré-entraînement pour limiter le volume de données annotées nécessaire à la tâche spécifique.
+
+La qualité de cette classification se mesure, comme pour toute tâche d'extraction, par précision, rappel et score $F_1$ :
+\begin{equation}
+    P = \frac{VP}{VP+FP}, \qquad R = \frac{VP}{VP+FN}, \qquad F_1 = 2\cdot\frac{P\times R}{P+R},
+\end{equation}
+où $VP$, $FP$ et $FN$ désignent respectivement les vrais positifs, faux positifs et faux négatifs \emph{d'extraction} --- une mention correctement ou incorrectement typée --- à distinguer des faux positifs et faux négatifs \emph{de résolution}, propres au couplage d'enregistrements et définis en section~\ref{sec:resolution-entites}.
+
+\subsection{Biais des modèles pré-entraînés sur les noms et toponymes d'Afrique subsaharienne}
+\label{sec:biais-modeles}
+
+Un modèle comme CamemBERT est pré-entraîné sur de grands corpus web en français (OSCAR, dérivé de Common Crawl), dont la composition reflète la production textuelle numérique dominante --- très majoritairement issue de la France métropolitaine \cite{martin2020camembert}.
+Les patronymes et toponymes d'Afrique subsaharienne, ainsi que certaines structures de filiation ou de désignation propres aux actes d'état civil locaux, y sont vraisemblablement sous-représentés.
+
+Aucune étude ne semble avoir mesuré spécifiquement l'effet de cette sous-représentation sur les performances de CamemBERT appliqué à des noms et toponymes d'Afrique subsaharienne ; ce constat identifie d'ailleurs une lacune de la littérature plutôt qu'un résultat établi.
+Le phénomène est en revanche documenté pour des modèles multilingues comparables : la campagne MasakhaNER~2.0 montre que les performances de NER de modèles pré-entraînés chutent significativement --- de plusieurs points de F1 --- pour des langues et contextes africains peu représentés dans leur corpus d'entraînement, comparativement à des modèles couvrant plus largement ces langues \cite{adelani2022masakhaner}.
+Cette même logique de sous-représentation justifie, par analogie, l'hypothèse d'une dégradation comparable pour les noms propres et toponymes africains au sein d'un modèle français générique, et motive le fine-tuning sur corpus spécialisé retenu dans ce mémoire plutôt qu'un usage direct des modèles pré-entraînés --- argument qui prolonge celui déjà avancé pour la HTR en section~\ref{sec:synthese-htr}.
+
+Ce biais potentiel doit par ailleurs être distingué d'une seconde source de fragilité, propre à la tokenisation par sous-mots (BPE) des modèles de type CamemBERT : un nom propre absent du vocabulaire appris est fragmenté en plusieurs sous-unités, ce qui peut diluer sa représentation contextuelle et compliquer sa reconnaissance comme entité unique \cite{bostrom2020byte} --- un effet distinct du biais de représentativité du corpus, mais qui touche pareillement les patronymes peu fréquents dans la langue générale \cite{ahia2024tokenization}.
+
+\subsection{Extraction de relations et représentation en triplets}
+\label{sec:relation-extraction}
+
+L'extraction de relations (RE) établit des liens typés entre entités déjà identifiées --- une relation de filiation, de déclaration, de domiciliation ou de témoignage, par exemple.
+Chaque relation extraite peut être représentée sous la forme d'un triplet (sujet, prédicat, objet), notation directement compatible avec le modèle RDF détaillé en section~\ref{sec:indexation-lexicale-semantique} : \textit{(Hamadou, estFilsDe, Keoul)}.
+
+Deux familles de méthodes coexistent. Les approches à base de règles s'appuient sur des patrons textuels et des expressions régulières \cite{hearst1992automatic}, efficaces lorsque la formulation des actes est régulière, mais dont la couverture diminue avec les écarts de graphie ou les erreurs de transcription héritées de la HTR.
+Les approches supervisées traitent la RE comme une tâche de classification portant sur une paire d'entités déjà repérées, en s'appuyant sur la représentation contextuelle produite par le même type d'encodeur Transformer que pour le NER \cite{baldini2019matching} --- au prix d'un besoin d'annotation portant, cette fois, non plus seulement sur les entités mais sur leurs relations.
+Une approche hybride, combinant règles pour les formulations régulières et modèle supervisé pour les cas atypiques, est généralement retenue dans les corpus administratifs faiblement dotés en annotations \cite{waltl2018rule}.
+
+\subsection{Résolution d'entités : du couplage d'enregistrements au graphe}
+\label{sec:resolution-entites}
+
+L'extraction d'une mention de personne ne permet pas, à elle seule, de savoir si cette mention renvoie à une personne déjà citée dans un autre acte : \og Ibrahim Issa \fg{} apparaissant dans un acte de naissance et dans un acte de mariage peut désigner la même personne, ou deux personnes distinctes.
+Cette question de résolution d'entités relève du couplage d'enregistrements (\textit{record linkage}), un problème distinct du NER et de la RE mais nécessaire à la construction d'un graphe cohérent : sans résolution, chaque acte engendrerait des nœuds isolés, sans lien avec les mentions équivalentes d'un autre acte.
+
+Le modèle probabiliste de Fellegi et Sunter reste la référence classique du domaine \cite{fellegiSunter1969}. Chaque paire de mentions comparées y est résumée par un vecteur d'accord $\gamma$ portant sur les attributs disponibles (nom, prénom, date, lieu, rôle), et la décision repose sur un rapport de vraisemblance
+
+\begin{equation}
+    R(\gamma) = \frac{P(\gamma \mid \text{même personne})}{P(\gamma \mid \text{personnes distinctes})}
+\end{equation}
+
+comparé à deux seuils $T_\lambda \leq T_\mu$ : la paire est retenue comme lien si $R(\gamma) \geq T_\mu$, écartée si $R(\gamma) \leq T_\lambda$, et renvoyée à une revue humaine dans l'intervalle intermédiaire.
+Cette zone d'incertitude explicite --- plutôt qu'une décision binaire forcée --- est particulièrement pertinente pour des registres manuscrits où les écarts entre deux mentions peuvent provenir d'une variante orthographique, d'une erreur de transcription ou d'une véritable homonymie, sans qu'il soit toujours possible de trancher automatiquement.
+
+Deux types d'erreur doivent être distingués de ceux, propres à l'extraction, définis en section~\ref{sec:ner} : une fusion erronée de deux personnes distinctes constitue un faux positif de résolution, l'absence de lien entre deux mentions d'une même personne un faux négatif de résolution. Ces erreurs affectent directement la fiabilité du graphe de connaissances construit en aval.
+
+\subsection{De l'indexation lexicale à l'indexation sémantique : ontologies du Web sémantique}
+\label{sec:indexation-lexicale-semantique}
+
+L'indexation lexicale repose sur la forme textuelle des documents : elle retrouve un acte à partir des chaînes de caractères qu'il contient, éventuellement enrichies d'une recherche approchée ou de variantes connues.
+Cette approche demeure sensible aux différences de graphie, aux erreurs de transcription et aux désignations indirectes --- par exemple lorsqu'une personne n'est mentionnée que par son rôle (\og la mère \fg{}) plutôt que par son nom.
+
+L'indexation sémantique ajoute une couche d'entités et de relations, construite à partir des sorties du NER (section~\ref{sec:ner}), de la RE (section~\ref{sec:relation-extraction}) et de la résolution d'entités (section~\ref{sec:resolution-entites}).
+Le Web sémantique fournit le cadre standardisé de cette représentation.
+Le modèle RDF (\textit{Resource Description Framework}) représente toute assertion comme un triplet sujet-prédicat-objet, où sujets et objets sont des ressources identifiées par un URI ou des valeurs littérales, formant un graphe orienté et étiqueté \cite{w3c2014rdf}.
+Le langage OWL (\textit{Web Ontology Language}) enrichit RDF de constructions logiques --- classes, propriétés, restrictions de cardinalité, relations de subsomption --- permettant l'inférence automatique de nouvelles assertions à partir des assertions explicites \cite{w3c2012owl}.
+SPARQL constitue le langage d'interrogation standard des graphes RDF, par appariement de motifs de triplets \cite{w3c2013sparql}.
+
+Deux ontologies de ce cadre présentent un intérêt direct pour la modélisation des actes d'état civil.
+CIDOC-CRM, développée pour le patrimoine culturel, propose une modélisation centrée sur l'événement (\textit{event-centric}) --- une naissance, un mariage ou un décès y sont des événements reliant des personnes, des lieux et des dates --- particulièrement adaptée à la structure narrative d'un acte d'état civil \cite{iso21127cidoccrm}.
+FOAF (\textit{Friend of a Friend}), à l'inverse, fournit un vocabulaire centré sur la personne et ses relations sociales, directement pertinent pour représenter les liens de filiation, de mariage ou de témoignage extraits en section~\ref{sec:relation-extraction} \cite{brickley2014foaf}.
+
+\subsection{Graphes de connaissances : définition formelle et application aux actes d'état civil}
+\label{sec:graphe-connaissances}
+
+Un graphe de connaissances (\textit{knowledge graph}) peut être formalisé comme un triplet $G = (V, E, L)$, où $V$ est l'ensemble des nœuds (entités), $E \subseteq V \times V$ l'ensemble des arêtes orientées (relations) et $L$ une fonction d'étiquetage associant à chaque nœud et à chaque arête un type issu d'un vocabulaire contrôlé (une ontologie telle que celles présentées en section~\ref{sec:indexation-lexicale-semantique}). De façon équivalente, dans le formalisme RDF, un graphe de connaissances peut être défini comme un ensemble de triplets $G \subseteq V \times P \times (V \cup \mathrm{Lit})$, où $P$ est l'ensemble des prédicats et $\mathrm{Lit}$ l'ensemble des valeurs littérales.
+
+Appliqué aux actes d'état civil, $V$ regroupe les personnes, les actes et les événements (naissance, mariage, décès) ainsi que les lieux ; $E$ regroupe les relations de filiation, de déclaration, d'union ou d'enregistrement extraites en sections~\ref{sec:relation-extraction} et~\ref{sec:resolution-entites}.
+
+% TODO : réaliser ce schéma (Excalidraw), dérivé de l'exemple textuel ci-dessus et en section 1.3.4
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.7\textwidth]{figures/graphe_connaissances_exemple.png}
+%     \caption{Exemple de graphe de connaissances pour un acte d'état civil : personnes, acte et événement reliés par des relations typées (filiation, déclaration).}
+%     \label{fig:graphe-connaissances-exemple}
+% \end{figure}
+
+Cette représentation permet des requêtes impossibles à formuler sur une indexation purement lexicale --- retrouver tous les actes dans lesquels une personne apparaît, quel que soit son rôle, ou reconstruire une chaîne de filiation sur plusieurs générations --- sans se substituer à l'acte source : chaque nœud et chaque arête doit rester traçable jusqu'à la mention et au segment d'image dont elle est issue, condition posée en section~\ref{sec:etat-civil-patrimoine}.
+C'est ce graphe qui doit, en section~\ref{sec:ric-o}, être structuré conformément au modèle RiC-O pour acquérir une valeur archivistique.
+
+\subsection{Synthèse}
+\label{sec:synthese-nlp}
+
+Trois lacunes se dégagent de cette revue. D'une part, la maturité des outils NLP pour le français reste inégale selon les variétés régionales : les modèles de référence, et plus largement les corpus qui les alimentent, sont construits sur une production textuelle dominée par le français de France, et aucune étude ne semble avoir quantifié leur comportement sur les noms et toponymes d'Afrique subsaharienne --- un vide que ce mémoire contribue à combler par son protocole de fine-tuning et d'évaluation.
+D'autre part, la résolution d'entités dans des registres manuscrits dégradés cumule les sources d'incertitude propres à la HTR (section~\ref{sec:htr}) et celles propres au couplage d'enregistrements lui-même (section~\ref{sec:resolution-entites}), une combinaison peu documentée dans la littérature sur le \textit{record linkage}, généralement développée sur des données textuelles propres.
+Enfin, si les briques ontologiques existent séparément --- CIDOC-CRM pour le patrimoine, FOAF pour les relations interpersonnelles ---, aucun profil d'application ne semble les combiner spécifiquement pour modéliser un acte d'état civil africain manuscrit ; cette lacune rejoint directement celle identifiée pour RiC-O en section~\ref{sec:ric-o}, et situe la contribution de ce mémoire à l'articulation entre extraction sémantique et modélisation archivistique.
+
+\section{Intelligence artificielle frugale : contraintes et leviers de compression}
+\label{sec:ia-frugale}
+
+Les étapes précédentes mobilisent des ressources de nature différente : reconnaissance manuscrite (section~\ref{sec:htr}), extraction d'information et résolution d'entités (section~\ref{sec:nlp-indexation}).
+La faisabilité d'un déploiement local dépend donc moins de la taille d'un modèle isolé que de l'empreinte de la chaîne complète : matériel disponible, mémoire, temps de traitement, volume documentaire, connectivité, maintenance et compétences techniques.
+Cette section examine les principaux leviers permettant de réduire cette empreinte --- quantification, élagage, distillation et adaptation économe en paramètres --- avant d'en discuter les limites documentées dans la littérature.
+
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.99\textwidth]{figures/facteurs-exploitabilite.png}
-    \caption{Facteurs affectant l'exploitabilité des registres manuscrits. \textit{Source : l'auteur, réalisé avec Excalidraw}}
-    \label{fig:facteurs-exploitabilite}
+    \includegraphics[width=0.65\textwidth]{figures/Model-compression-methods-a-pruning-b-quantization-and-c-knowledge-distillation.png}
+    \caption{Trois leviers de compression de modèles : (a) élagage par suppression de poids, (b) quantification par réduction de précision numérique et (c) distillation par transfert enseignant-élève \cite{shumba2023wearable}.}
+    \label{fig:techniques-compression}
 \end{figure}
 
-Dans les contextes où les conditions de conservation ne sont pas régulées, la température, l'humidité, les moisissures, les insectes et les manipulations répétées peuvent dégrader le papier et les encres.
-Ces facteurs affectent la lisibilité des actes et augmentent la difficulté de leur transcription automatique.
-Ils imposent donc de documenter, pour chaque corpus, l'état matériel des registres afin d'interpréter les résultats de reconnaissance et d'extraction.
-La dégradation physique n'annule pas la valeur probatoire de l'acte, mais elle peut limiter son accessibilité et son exploitabilité.
-La Figure~\ref{fig:facteurs-exploitabilite} synthétise les facteurs susceptibles d'affecter l'exploitabilité des registres.
+\subsection{Le problème de la surconsommation computationnelle}
+\label{sec:surconsommation}
 
-\subsection{Valeur probatoire des actes anciens et préservation numérique en contexte de ressources limitées}
+L'entraînement et l'inférence des modèles de \textit{deep learning} contemporains, en particulier les grands modèles de langage, impliquent un coût énergétique et matériel croissant, désormais documenté par un courant de recherche dit \og Green AI \fg{}, qui appelle à rapporter systématiquement le coût computationnel des modèles au même titre que leur performance \cite{schwartz2020greenai,strubell2019energy}.
 
-Les actes d'état civil anciens peuvent conserver une valeur probatoire durable lorsqu'ils restent authentifiables, intègres et rattachables à une autorité compétente.
-Ils constituent des preuves importantes de l'identité juridique, de l'âge ou de la filiation, notamment en l'absence de documents contemporains \parencite{uneca2020status,un2023guidelines}.
+Ce coût n'est pas réparti uniformément à l'échelle mondiale.
+Environ la moitié des cinq cents premiers systèmes de calcul à haute performance sont situés dans des pays à haut revenu, et l'essentiel des livraisons mondiales de processeurs graphiques (GPU) est aujourd'hui absorbé par le calcul à haute performance des économies les mieux dotées \cite{isocpulse2024fractures}.
+Pour l'Afrique subsaharienne, cette disparité se traduit concrètement par un accès restreint à une infrastructure de calcul avancée, freinant la mise à l'échelle de solutions d'intelligence artificielle par les acteurs locaux, universitaires comme administratifs \cite{idrc2024computeinitiative}.
 
-La numérisation améliore l'accès aux registres fragiles, mais ne remplace ni leur conservation physique ni leur valeur juridique.
-Les travaux consacrés à la préservation numérique dans les bibliothèques universitaires sud-africaines mettent notamment en évidence des difficultés de financement pérenne, de compétences spécialisées, d'obsolescence technologique et d'infrastructure \parencite{masenyaFactorsThatInfluence2020,masenyaDigitalPreservationPractices2019}.
-Ces résultats fournissent un point de comparaison utile pour les institutions archivistiques disposant de ressources limitées, sans pouvoir être généralisés mécaniquement à tous les services d'état civil.
+Dans les administrations en charge de l'état civil, cette contrainte se double d'une réalité opérationnelle : l'absence, dans de nombreux services, d'un accès à un GPU dédié, et une dépendance à une connectivité réseau elle-même inégale. Un modèle qui ne peut s'exécuter que sur une infrastructure cloud coûteuse ou un GPU haut de gamme n'est, de ce fait, pas déployable dans ce contexte --- quelle que soit sa précision. Cette contrainte matérielle motive les leviers de compression examinés dans la suite de cette section.
 
-Dans cette perspective, la numérisation doit être distinguée de l'exploitation sémantique.
-Le graphe de connaissances doit donc être conçu comme une couche sémantique dérivée, traçable et explicitement reliée aux actes sources.
-L'enjeu n'est pas de remplacer l'acte original, mais d'en améliorer l'exploitabilité sans produire d'assertions non attestées.
+\subsection{Quantification et quantification post-entraînement}
+\label{sec:quantification}
 
-\section{Standards et modèles de description archivistique}
+La quantification consiste à représenter certains tenseurs d'un modèle entraîné --- typiquement ses poids et, selon la méthode, ses activations --- dans une précision numérique inférieure à celle utilisée pendant l'entraînement. Pour une quantification linéaire uniforme, une valeur flottante $x$ est représentée par un entier $x_q$ au moyen d'un facteur d'échelle $s$ et d'un point zéro $z$ :
 
-Le choix d'un modèle de représentation adapté aux relations présentes dans les actes d'état civil suppose de distinguer les fonctions de préservation, de description hiérarchique et de description sémantique.
-Cette section examine les principaux standards mobilisables avant de présenter RiC-O, retenu comme cadre de modélisation dans ce mémoire.
+\begin{equation}
+    x_q = \mathrm{round}\!\left(\frac{x}{s}\right) + z, \qquad x \approx s\,(x_q - z)
+\end{equation}
 
-\subsection{Modèles classiques : OAIS, EAD et Dublin Core}
+Pour un format sur $b$ bits, le taux de compression théorique par rapport à une représentation de référence sur $b_0$ bits vaut $b_0/b$ : le passage de FP32 ($b_0=32$) à INT8 ($b=8$) réduit ainsi théoriquement d'un facteur quatre l'espace nécessaire au stockage des poids, et peut réduire la mémoire mobilisée en inférence lorsque le matériel prend efficacement en charge les opérations quantifiées.
 
-Le modèle OAIS (\textit{Open Archival Information System}), normalisé par l'ISO 14721, constitue un cadre de référence pour la préservation numérique.
-Il décrit les fonctions d'un système d'archivage --- versement, stockage, gestion des données, administration, planification de la préservation et accès --- ainsi que les paquets d'information qui circulent entre elles.
-OAIS éclaire donc l'organisation nécessaire à la conservation durable des archives, sans définir la représentation sémantique du contenu d'un document : il ne dit rien de la manière de représenter un acte de naissance et les personnes qu'il met en relation.
-Sa pertinence pour ce mémoire est donc réelle mais indirecte —-- il éclaire les fonctions que devra assumer l'infrastructure de conservation, sans se substituer à un modèle sémantique du contenu.
+Lorsque cette conversion est appliquée après l'entraînement, sans réentraînement du modèle, on parle de quantification post-entraînement (\textit{Post-Training Quantization}, PTQ) : une passe de calibration, réalisée sur un petit échantillon représentatif, suffit à estimer les facteurs d'échelle appropriés pour chaque tenseur.
+Cette simplicité opérationnelle --- comparée à un entraînement conscient de la quantification (\textit{Quantization-Aware Training}), plus coûteux mais généralement plus robuste aux fortes compressions --- explique la popularité de la PTQ pour des déploiements à ressources limitées, au prix d'une dégradation de performance plus marquée aux formats les plus agressifs (INT4 et en-deçà).
 
-EAD (\textit{Encoded Archival Description}) est un standard XML destiné à l'encodage des instruments de recherche archivistiques.
-Il permet de décrire un fonds à plusieurs niveaux, du fonds à la pièce, selon une organisation généralement hiérarchique.
-Il peut ainsi situer un acte dans son contexte de production et conserver des informations descriptives à son sujet.
-Toutefois, EAD ne fournit pas, à lui seul, un modèle explicite d'entités persistantes permettant de relier, à travers plusieurs actes, un officier d'état civil, un déclarant, un enfant, des parents ou un événement selon des relations sémantiques typées.
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Taille théorique des poids selon le format de quantification}
+    \label{tab:quantification}
+    \begin{tabular}{lcc}
+        \toprule
+        \textbf{Format} & \textbf{Bits par poids ($b$)} & \textbf{Taille relative ($32/b$)} \\
+        \midrule
+        FP32            & 32                            & $1{,}00\times$                    \\
+        FP16/BF16       & 16                            & $0{,}50\times$                    \\
+        INT8            & 8                             & $0{,}25\times$                    \\
+        INT4            & 4                             & $0{,}125\times$                   \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
-Dublin Core propose un vocabulaire générique de métadonnées destiné à la découverte et à l'échange de ressources hétérogènes.
-Dans sa version simple, il repose sur quinze éléments tels que le titre, le créateur, le sujet ou la date.
-Ce niveau de généralité facilite l'interopérabilité minimale, mais demeure insuffisant pour distinguer systématiquement les rôles spécifiques intervenant dans un acte d'état civil.
-Une propriété comme \texttt{creator} peut désigner une personne ou une organisation responsable de la ressource, sans exprimer nécessairement la fonction précise exercée dans l'acte.
+\subsection{Élagage (pruning)}
+\label{sec:pruning}
 
-Pris isolément, OAIS, EAD et Dublin Core répondent donc à des besoins complémentaires : préservation du système, description hiérarchique des fonds et découverte de ressources.
-Ils ne fournissent toutefois pas un modèle archivistique complet permettant de représenter explicitement les relations entre les personnes, les événements et les actes d'état civil.
-Cette limite motive l'étude d'une approche fondée sur RiC-O.
+L'élagage consiste à supprimer les paramètres d'un réseau dont la contribution à la sortie est jugée négligeable, dans le but de réduire la taille du modèle et, sous réserve d'un support matériel adapté, le coût de calcul. L'élagage par magnitude (\textit{magnitude-based pruning}), l'une des approches les plus répandues, retire les poids dont la valeur absolue est inférieure à un seuil $\tau$ \cite{han2015learning} :
+
+\begin{equation}
+    m_i =
+    \begin{cases}
+        1 & \text{si } |w_i| > \tau \\
+        0 & \text{sinon}
+    \end{cases}
+    , \qquad w_i' = m_i \cdot w_i
+\end{equation}
+
+Le taux de parcimonie du réseau élagué est alors défini comme la proportion de poids annulés, $s = \big(\sum_i (1 - m_i)\big) / |W|$. L'élagage est généralement appliqué de façon itérative, en alternant suppression d'une fraction des poids et ré-entraînement, afin de limiter la perte de performance à un niveau de parcimonie donné \cite{han2015learning}.
+Cette technique peut être combinée à la quantification --- une même architecture pouvant être à la fois élaguée et quantifiée \cite{han2016deepcompression} --- mais son bénéfice pratique dépend fortement du support matériel : un élagage non structuré, qui produit des matrices creuses de façon irrégulière, n'accélère pas nécessairement l'inférence sur du matériel généraliste dépourvu d'opérateurs creux optimisés, contrairement à un élagage structuré (suppression de neurones, canaux ou têtes d'attention entiers).
+
+\subsection{Distillation de connaissances}
+\label{sec:distillation}
+
+La distillation de connaissances entraîne un modèle élève, plus compact, à
+reproduire le comportement d'un modèle enseignant plus complexe, plutôt qu'à apprendre uniquement à partir des étiquettes de référence \cite{hinton2015distilling}.
+L'élève est entraîné à partir des probabilités \og douces \fg{} produites par l'enseignant, obtenues en introduisant une température $T > 1$ dans le softmax de sortie, $p_i = \exp(z_i/T) / \sum_j \exp(z_j/T)$, ce qui lisse la distribution et révèle les similarités relatives que l'enseignant établit entre classes proches --- information absente d'une étiquette \og dure \fg{}.
+La fonction de perte combine généralement l'entropie croisée avec les étiquettes de référence et une divergence entre les distributions douces de l'élève et de l'enseignant, pondérées par $\alpha$ :
+
+\begin{equation}
+    \mathcal{L}_{\mathrm{KD}} = \alpha\, \mathcal{L}_{\mathrm{CE}}(y, p_{\mathrm{\text{élève}}}) + (1-\alpha)\, T^2\, \mathcal{L}_{\mathrm{CE}}(p_{\mathrm{\text{enseignant}}}^{T}, p_{\mathrm{\text{élève}}}^{T})
+\end{equation}
+
+le facteur $T^2$ compensant la réduction d'amplitude des gradients induite par la température lors de la rétropropagation \cite{hinton2015distilling}. La distillation et la quantification sont compatibles : un modèle distillé peut être quantifié pour réduire davantage son coût d'inférence.
+
+\subsection{Adaptation paramétrique efficiente : LoRA et QLoRA}
+\label{sec:lora-qlora}
+
+L'adaptation à faible volume de données consiste à spécialiser un modèle pré-entraîné sur un corpus cible sans réentraîner l'ensemble de ses paramètres.
+L'adaptation de rang faible (\textit{Low-Rank Adaptation}, LoRA) part du constat empirique que la mise à jour des poids nécessaire à cette spécialisation possède, en pratique, un rang effectif faible.
+Pour une matrice de poids pré-entraînée $W_0 \in \mathbb{R}^{d \times k}$, LoRA introduit une mise à jour de rang réduit $\Delta W = BA$, avec $B \in \mathbb{R}^{d \times r}$, $A \in \mathbb{R}^{r \times k}$ et $r \ll \min(d,k)$ ; seuls $A$ et $B$ sont appris, ce qui ramène le nombre de paramètres entraînés de $d \times k$ à $r\,(d+k)$, tandis que $W_0$ demeure gelée \cite{hu2022lora}.
+
+QLoRA prolonge cette approche en combinant adaptation de rang faible et
+quantification : le modèle de base $W_0$ est quantifié sur 4 bits (format NF4, \textit{4-bit NormalFloat}, conçu pour la distribution approximativement gaussienne des poids de réseaux pré-entraînés) et gelé sous cette forme compressée, tandis que les matrices d'adaptation $A$ et $B$ sont entraînées dans une précision plus élevée (16 bits) \cite{dettmers2023qlora}.
+Cette combinaison permet de spécialiser des modèles dont la taille, en pleine précision, excéderait la mémoire disponible sur l'infrastructure cible --- un intérêt direct pour un déploiement en environnement contraint, au prix d'une dépendance à un noyau de calcul (\textit{kernel}) capable de dé-quantifier efficacement les poids lors de la propagation avant.
+
+\subsection{Architectures et modèles légers}
+\label{sec:architectures-legeres}
+
+Au-delà des techniques de compression appliquées à un modèle existant, une architecture peut être conçue nativement pour un budget de calcul réduit.
+En NLP français, DistilBERT applique la distillation (section~\ref{sec:distillation}) pour réduire de moitié le nombre de paramètres d'un modèle de type BERT tout en conservant l'essentiel de ses performances \cite{sanh2019distilbert} ; des variantes distillées de CamemBERT suivent la même logique pour le français.
+En vision par ordinateur, MobileNet \cite{howard2017mobilenets} et EfficientNet-Lite reposent sur des convolutions factorisées et une recherche d'architecture optimisée pour le rapport performance/coût, plutôt que sur la compression d'un modèle existant \cite{tan2019efficientnet}.
+Kraken, déjà présenté en section~\ref{sec:approches-classiques-neuronales}, relève de cette même famille pour la HTR, avec une architecture volontairement compacte par conception plutôt que par compression a posteriori.
+
+À l'extrême de ce spectre de frugalité se trouvent les approches purement symboliques ou statistiques légères --- les règles et les CRF présentés en sections~\ref{sec:ner} et~\ref{sec:relation-extraction} --- dont le coût d'inférence est négligeable devant celui d'un réseau de neurones, au prix d'une couverture plus étroite face aux formulations non prévues par les règles ou les caractéristiques manuelles.
+
+Cette logique de miniaturisation touche également, plus récemment, les modèles vision-langage (VLM), capables de traiter conjointement une image et une instruction textuelle.
+SmolVLM propose des variantes de 256~millions à 2,2~milliards de paramètres, dont la plus compacte revendique un besoin de mémoire GPU inférieur à 1~Go pour l'inférence sur une image \cite{marafioti2025smolvlm} ; MobileVLM rapporte, sur un processeur mobile Snapdragon~888, un débit de l'ordre de 21,5~tokens par seconde \cite{chu2023mobilevlm}.
+Ces résultats attestent la viabilité croissante de modèles multimodaux compacts, sans démontrer leur performance spécifique sur des registres manuscrits dégradés --- question qui reste à évaluer empiriquement pour ce type de corpus.
+
+\subsection{Synthèse}
+\label{sec:synthese-frugalite}
+
+Ces techniques sont abondamment documentées individuellement, mais rarement évaluées conjointement sur des corpus africains à faibles ressources annotées.
+Les benchmarks de référence pour la quantification, l'élagage et la distillation portent presque exclusivement sur des architectures et des jeux de données à haute disponibilité de données (anglais, français standard), tandis que LoRA et QLoRA sont majoritairement évalués sur des grands modèles de langage généralistes plutôt que sur des modèles spécialisés en HTR ou en NER fine-tunés sur un corpus administratif bruité de petite taille.
+L'effet cumulé de ces techniques --- combiner, par exemple, une quantification et une adaptation LoRA sur un modèle de reconnaissance déjà affiné sur un corpus restreint --- constitue une zone largement sous-documentée de la littérature, alors qu'elle correspond précisément à la configuration visée par ce mémoire.
+
+Cette absence d'évaluation systématique renvoie enfin à la définition même de la frugalité retenue ici : non la taille du modèle le plus petit dans l'absolu, mais une propriété mesurable de la chaîne complète --- qualité documentaire, mémoire, temps de traitement, dépendance matérielle --- dont l'arbitrage entre compression et performance sera examiné empiriquement dans les chapitres suivants.
+
+\section{Standards d'archivage numérique et gouvernance documentaire}
+\label{sec:standards-archivage}
+
+Les sections précédentes ont annoncé, à plusieurs reprises, le rôle du standard \textit{Records in Contexts} (RiC) comme cadre de structuration archivistique du graphe de connaissances construit en section~\ref{sec:nlp-indexation} (sections~\ref{sec:etat-civil-patrimoine} et~\ref{sec:graphe-connaissances}). Cette section examine successivement les standards classiques de préservation et de description archivistique (section~\ref{sec:standards-classiques}), puis RiC-CM et son ontologie RiC-O (section~\ref{sec:ric-o}), avant de dresser un état des lieux des profils d'application existants (section~\ref{sec:profils-application-ric}) et de synthétiser la lacune qui positionne ce mémoire (section~\ref{sec:synthese-standards}).
+
+\subsection{Modèles classiques : OAIS, EAD, Dublin Core --- portée et limites pour l'état civil}
+\label{sec:standards-classiques}
+
+Avant l'émergence de RiC, la description et la préservation numérique des ressources archivistiques reposaient principalement sur trois familles de standards, chacune circonscrite à un périmètre fonctionnel distinct.
+
+Le modèle de référence OAIS (\textit{Open Archival Information System}),
+normalisé sous ISO~14721 \cite{iso2012_14721}, définit l'architecture fonctionnelle d'un système d'archivage numérique pérenne --- ingestion, stockage, gestion des données, accès, planification de la préservation --- ainsi que la structure des paquets d'information échangés entre ces fonctions (paquet de soumission, paquet archivé, paquet de diffusion) \cite{iso2012_14721}.
+OAIS reste toutefois délibérément agnostique quant au contenu informationnel qu'il préserve : il ne prescrit aucun modèle de données pour représenter les entités décrites ni les relations qui les unissent, une décision de conception qui garantit sa généralité mais ne fournit, à elle seule, aucune réponse à la problématique d'indexation sémantique de ce mémoire.
+
+L'EAD (\textit{Encoded Archival Description}) encode, sous forme XML, les instruments de recherche archivistiques selon une structure hiérarchique --- fonds, séries, dossiers, pièces --- héritée de la norme descriptive ISAD(G) \cite{saa2019ead3}.
+Cette organisation, pensée pour restituer la provenance et l'ordre originel d'un fonds, se prête mal à la représentation de relations transversales entre entités appartenant à des fonds ou des séries distincts : une même personne mentionnée dans un acte de naissance puis, des décennies plus tard, dans un acte de mariage conservé dans un autre registre, n'y trouve pas de représentation naturelle en tant qu'entité unique reliant les deux documents.
+
+Le Dublin Core, enfin, propose un ensemble minimal et générique de quinze éléments de métadonnées (titre, créateur, sujet, description, date, etc.), conçu pour la découverte de ressources hétérogènes à l'échelle du Web \cite{dcmi2020terms}.
+Sa simplicité, qui explique son adoption large, est aussi sa limite pour ce mémoire : les éléments Dublin Core décrivent une ressource documentaire de façon plate, sans mécanisme dédié pour typer et qualifier les relations entre plusieurs ressources ou entre une ressource et les personnes qu'elle mentionne.
+
+Ces trois standards demeurent des références incontournables --- respectivement pour l'architecture de préservation, la description hiérarchique et l'interopérabilité minimale des métadonnées --- mais aucun ne propose, par construction, une modélisation entités-relations directement exploitable pour l'indexation sémantique visée par ce mémoire. C'est ce vide que le standard \textit{Records in Contexts}, examiné dans la section suivante, a été conçu pour combler.
 
 \subsection{Records in Contexts et l'ontologie RiC-O : principes, structure et interopérabilité}
+\label{sec:ric-o}
 
-Développé par le Groupe d'experts en description archivistique (EGAD) du Conseil international des archives depuis 2012, le standard \textit{Records in Contexts} (RiC) a été conçu comme un successeur des quatre normes descriptives antérieures de l'ICA : ISAD(G), ISAAR(CPF), ISDF et ISDIAH.
-Il vise à les articuler dans un cadre conceptuel commun, centré sur les entités archivistiques et leurs contextes plutôt que sur des descriptions produites séparément.
+Développé par le Groupe d'experts en description archivistique (EGAD) du Conseil international des archives depuis 2012 \cite{ica2023ricrelease}, le standard \textit{Records in Contexts} (RiC) a été conçu comme un cadre unificateur des quatre normes descriptives antérieures de l'ICA : ISAD(G), ISAAR(CPF), ISDF et ISDIAH. Il vise à les articuler dans un cadre conceptuel commun, centré sur les entités archivistiques et leurs contextes plutôt que sur des descriptions produites séparément.
 
 RiC comporte quatre parties complémentaires : les fondements de la description archivistique (RiC-FAD), le modèle conceptuel (RiC-CM), l'ontologie (RiC-O) et les lignes directrices d'application (RiC-AG).
-Les versions 1.0 de RiC-FAD, RiC-CM et RiC-O ont été publiées fin 2023 ; RiC-AG demeure en cours d'élaboration \textbf{ica2023ricrelease,ica2025ricwebinar}.
-RiC-O, dans sa version 1.1, est une ontologie OWL 2 qui formalise RiC-CM et fournit un vocabulaire ainsi que des règles formelles pour produire des jeux de données RDF décrivant des ressources archivistiques et leurs contextes \parencite{icaegad2025rico11,clavaudica}.
+Les versions 1.0 de RiC-FAD, RiC-CM et RiC-O ont été publiées en novembre 2023 ; RiC-AG est disponible en version 0.1 depuis 2025 \cite{ica2023ricrelease,clavaud2025ric}.
+RiC-O, dans sa version 1.1 (mai 2025), est une ontologie OWL~2 qui formalise RiC-CM et fournit un vocabulaire ainsi que des règles formelles pour produire des jeux de données RDF décrivant des ressources archivistiques et leurs contextes \cite{icaegad2025rico11,clavaudica}.
 
-L'apport de RiC-O tient à sa modélisation orientée entités-relations.
-Documents, agents, lieux, événements, activités et règles de gestion peuvent être représentés comme des entités distinctes et reliés au moyen de propriétés explicites.
+L'apport de RiC-O tient à sa modélisation orientée entités-relations. Documents, agents, lieux, événements, activités et règles de gestion peuvent être représentés comme des entités distinctes et reliés au moyen de propriétés explicites.
 Un acte de naissance peut ainsi être décrit à la fois comme une ressource archivistique, comme la trace d'un événement et comme un document associé à plusieurs agents exerçant des rôles différents.
-Cette approche ne résout pas automatiquement l'identification des personnes ni l'extraction du contenu manuscrit ; elle fournit le cadre nécessaire pour représenter, documenter et interroger les relations établies à partir des actes.
+Cette approche ne résout pas automatiquement l'identification des personnes ni l'extraction du contenu manuscrit ; elle fournit le cadre nécessaire pour représenter, documenter et interroger les relations établies à partir des actes --- de façon compatible avec le graphe formalisé en section~\ref{sec:graphe-connaissances}, sous réserve d'un profil d'application adapté.
 
-Les jeux de données produits en RDF peuvent être reliés à d'autres vocabulaires et référentiels, puis interrogés au moyen de SPARQL lorsqu'ils sont stockés dans une infrastructure compatible.
+Les jeux de données produits en RDF peuvent être reliés à d'autres vocabulaires et référentiels, puis interrogés au moyen de SPARQL \cite{w3c2013sparql} lorsqu'ils sont stockés dans une infrastructure compatible --- typiquement un triplestore RDF (par exemple GraphDB ou Apache Jena Fuseki) plutôt qu'une base de graphe à propriétés comme Neo4j, dont le modèle de données natif (nœuds et arêtes porteurs de propriétés, interrogés en Cypher) diverge du modèle RDF/OWL sur lequel repose RiC-O ; une interopérabilité entre les deux reste possible via des extensions dédiées, mais au prix d'une conversion supplémentaire.
 L'interopérabilité effective dépend toutefois des choix de modélisation, de la stabilité des identifiants, des règles de transformation, de la provenance des assertions et de la gouvernance des données.
 RiC-O constitue ainsi un cadre de référence, non une solution technique complète de peuplement ou d'exploitation d'un graphe.
 
 \subsection{Profils d'application RiC-O : état des lieux}
+\label{sec:profils-application-ric}
 
 RiC-O est une ontologie générique : son application à un domaine particulier suppose de sélectionner les classes et propriétés pertinentes, de définir des contraintes d'usage et, si nécessaire, de documenter des extensions.
-Les futures lignes directrices RiC-AG ont précisément vocation à fournir aux professionnels et aux développeurs des recommandations et des exemples de mise en œuvre de RiC-CM et RiC-O \textbf{ica2023ricfad}.
+Les futures lignes directrices RiC-AG ont précisément vocation à fournir aux professionnels et aux développeurs des recommandations et des exemples de mise en œuvre de RiC-CM et RiC-O \cite{ica2023ricfad}.
 
 Les démonstrations actuellement disponibles portent principalement sur la conversion ou l'exploitation de métadonnées archivistiques existantes, notamment issues d'EAD, d'EAC-CPF ou de METS.
 Elles ne constituent pas nécessairement des profils de production applicables tels quels à l'état civil.
@@ -157,5 +525,62 @@ Dans les ressources consultées, aucun profil RiC-O spécifiquement consacré au
 
 Cette lacune ne signifie pas que le domaine est absent de RiC-O : le standard fournit des mécanismes génériques pour représenter des documents, agents, événements, lieux et relations.
 Elle indique plutôt que les règles d'application propres à l'état civil --- modélisation de la filiation, distinction des rôles, gestion des actes associés, traitement des informations incertaines et provenance des assertions --- restent à définir et à évaluer.
-C'est dans cet espace que s'inscrit l'objectif scientifique OS2 du mémoire.
 
+\subsection{Synthèse critique}
+\label{sec:synthese-standards}
+
+Les standards examinés dans cette section se complètent sans se substituer les uns aux autres : OAIS structure la préservation, l'EAD restitue la hiérarchie d'un fonds, le Dublin Core assure une interopérabilité minimale, et RiC-O propose, seul parmi eux, une modélisation entités-relations directement compatible avec le graphe de connaissances construit en section~\ref{sec:nlp-indexation}.
+
+Cette compatibilité de principe ne constitue toutefois pas, à elle seule, une solution opérationnelle. Comme relevé en section~\ref{sec:profils-application-ric}, aucun profil d'application RiC-O consacré aux registres d'état civil manuscrits n'a pu être identifié dans les ressources consultées, et \textit{a fortiori} aucun ne porte sur un corpus d'Afrique subsaharienne. Les démonstrations disponibles portent sur la conversion de métadonnées archivistiques déjà structurées (EAD, EAC-CPF, METS) plutôt que sur le peuplement d'un graphe RiC-O à partir d'un texte manuscrit dégradé, extrait et résolu selon les méthodes examinées aux sections~\ref{sec:htr} et~\ref{sec:nlp-indexation}. Les questions propres à l'état civil --- modélisation de la filiation, distinction des rôles au sein d'un même acte, représentation de l'incertitude issue de la transcription ou de la résolution d'entités, et provenance des assertions jusqu'au segment d'image source --- restent donc à définir.
+
+C'est précisément à cette articulation --- entre une chaîne de traitement produisant des entités et des relations incertaines, et un cadre archivistique standardisé exigeant traçabilité et gouvernance --- que se situe la contribution de ce mémoire, dont la synthèse générale, reprenant les lacunes identifiées dans chacun des quatre axes de ce chapitre, est proposée en conclusion.
+
+\section{Synthèse critique générale et positionnement du mémoire}
+\label{sec:synthese-generale}
+
+La revue de littérature conduite dans ce chapitre a porté sur quatre axes complémentaires : la reconnaissance de l'écriture manuscrite (section~\ref{sec:htr}), le traitement du langage et l'indexation sémantique (section~\ref{sec:nlp-indexation}), l'intelligence artificielle frugale (section~\ref{sec:ia-frugale}) et les standards d'archivage numérique (section~\ref{sec:standards-archivage}), précédés d'une mise en contexte de la gouvernance de l'état civil en Afrique subsaharienne (section~\ref{sec:gouvernance-etat-civil}). Ce cadrage initial a déjà relevé qu'aucune des réformes de numérisation examinées --- NEKKAL, iCivil, le projet pilote de Grand-Bassam, ou le cadre légal camerounais --- ne documente de dispositif reliant explicitement, sous forme structurée, personnes, événements et actes (section~\ref{sec:reformes-numerisation}). Chacun des quatre axes qui composent le corps du chapitre a ensuite mis en évidence une lacune spécifique, résumée au tableau~\ref{tab:synthese-lacunes}.
+
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Synthèse des lacunes identifiées à travers les quatre axes de la revue de littérature}
+    \label{tab:synthese-lacunes}
+    \begin{tabularx}{\textwidth}{
+            >{\raggedright\arraybackslash\hsize=0.85\hsize}X
+            >{\raggedright\arraybackslash\hsize=1.85\hsize}X
+            >{\raggedright\arraybackslash\hsize=0.6\hsize}X
+            >{\raggedright\arraybackslash\hsize=0.7\hsize}X
+        }
+        \toprule
+        \textbf{Axe}                & \textbf{Lacune identifiée}                                                                                                                                                & \textbf{Section}             & \textbf{Mobilisée par} \\
+        \midrule
+        HTR                         & Absence de corpus annotés et d'évaluation CER/WER pour l'écriture administrative manuscrite d'Afrique subsaharienne                                                       & \ref{sec:synthese-htr}       & H1, H2                 \\
+        \midrule
+        NLP / indexation sémantique & Absence d'évaluation du biais des modèles NLP pré-entraînés sur les noms/toponymes africains ; couplage d'enregistrements peu documenté sur données manuscrites dégradées & \ref{sec:synthese-nlp}       & H1, H3                 \\
+        \midrule
+        IA frugale                  & Absence d'évaluation systématique de l'effet cumulé des techniques de compression/adaptation sur des modèles HTR/NER fine-tunés à faibles ressources                      & \ref{sec:synthese-frugalite} & H2                     \\
+        \midrule
+        Gouvernance / RiC-O         & Absence de profil d'application RiC-O pour l'état civil manuscrit en contexte africain                                                                                    & \ref{sec:synthese-standards} & H3                     \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+\subsection{Articulation des lacunes}
+\label{sec:articulation-lacunes}
+
+Ces quatre lacunes ne sont pas indépendantes : elles s'articulent selon la même chaîne de traitement examinée tout au long du chapitre. L'absence de corpus HTR représentatif (axe~1) conditionne directement la nécessité d'un fine-tuning spécifique, qui rejoint l'absence d'évaluation du biais des modèles NLP sur les noms africains (axe~2) --- les deux lacunes procédant de la même sous-représentation des données d'Afrique subsaharienne dans les corpus d'entraînement génériques. La frugalité computationnelle (axe~3) traverse ces deux premiers axes de façon transversale, puisque les techniques de compression et d'adaptation qu'elle mobilise s'appliquent aussi bien au modèle de reconnaissance qu'au modèle d'extraction. La lacune relative à RiC-O (axe~4), enfin, ne porte plus sur l'extraction elle-même mais sur la destination structurelle de ses résultats : sans profil d'application adapté, les entités et relations produites par les axes~1 à~3, aussi fiables soient-elles, ne peuvent acquérir la valeur archivistique visée par ce mémoire (section~\ref{sec:etat-civil-patrimoine}).
+
+% TODO : réaliser ce diagramme (Excalidraw) : flèches reprenant le tableau ci-dessus (axe 1 -> axe 2 ; axe 3 traverse 1 et 2 ; axe 4 dépend de 1, 2 et 3)
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.75\textwidth]{figures/articulation_lacunes.png}
+%     \caption{Articulation des quatre lacunes identifiées dans la revue de littérature et de leur mobilisation par les hypothèses du mémoire.}
+%     \label{fig:articulation-lacunes}
+% \end{figure}
+
+\subsection{Positionnement du mémoire}
+\label{sec:positionnement}
+
+Le présent mémoire se positionne à l'intersection de ces quatre lacunes, plutôt que sur l'une d'entre elles prise isolément. Sa contribution consiste à concevoir et évaluer empiriquement une chaîne de traitement --- reconnaissance manuscrite, extraction d'entités et de relations, résolution d'entités et indexation sémantique --- rendue déployable en environnement à ressources limitées par les techniques de frugalité examinées en section~\ref{sec:ia-frugale}, et dont les résultats sont structurés conformément à un profil d'application RiC-O spécifiquement conçu pour l'état civil manuscrit, sur un corpus authentique d'actes camerounais.
+
+Cette articulation distingue le mémoire des travaux recensés dans chacun des quatre axes pris séparément : les réformes de numérisation nationales (section~\ref{sec:reformes-numerisation}) traitent la numérisation sans indexation sémantique ; les travaux de HTR et de NLP examinés (sections~\ref{sec:htr} et~\ref{sec:nlp-indexation}) ne portent pas sur des corpus d'état civil africains ; les techniques de frugalité (section~\ref{sec:ia-frugale}) sont rarement évaluées conjointement sur ce type de corpus ; et RiC-O (section~\ref{sec:standards-archivage}) ne dispose d'aucun profil d'application pour ce domaine dans la littérature consultée. Le chapitre suivant précise le cadre méthodologique et le protocole expérimental --- corpus, pipeline, hypothèses et critères d'évaluation --- permettant de tester empiriquement cette contribution.

@@ -1,2 +1,743 @@
-\chapter{Méthodologie et cadre conceptuel}
+\chapter{Cadre conceptuel et méthodologie}
 \label{chap:methodologie}
+
+Le chapitre précédent a mis en évidence quatre lacunes complémentaires dans la littérature examinée : l'absence de corpus HTR représentatif pour l'écriture administrative manuscrite d'Afrique subsaharienne, l'absence d'évaluation du biais des modèles de traitement du langage sur les noms et toponymes africains, l'absence d'évaluation systématique de l'effet cumulé des techniques de frugalité sur ce type de corpus, et l'absence de profil d'application RiC-O pour l'état civil manuscrit.
+Ce chapitre a pour objet de transformer ce positionnement critique en un cadre conceptuel rigoureux, puis en un protocole de recherche opérationnel permettant de tester empiriquement, au chapitre~3, la contribution annoncée en conclusion du chapitre~\ref{chap:etat_art}.
+
+% Il poursuit deux objectifs complémentaires.
+% D'une part, un objectif conceptuel : justifier, indépendamment de tout choix d'implémentation, pourquoi l'articulation entre intelligence artificielle frugale et graphe de connaissances constitue une réponse pertinente au problème de gouvernance documentaire posé en section~1.1.
+% D'autre part, un objectif méthodologique : décrire précisément le corpus mobilisé, le protocole d'annotation retenu, l'architecture de la chaîne de traitement --- de la reconnaissance manuscrite jusqu'au peuplement du graphe --- ainsi que les critères qui permettront d'évaluer, séparément, la qualité et la frugalité du système proposé.
+
+% Le périmètre de ce chapitre appelle deux précisions: certains choix
+% d'implémentation --- en particulier la stratégie de fine-tuning retenue pour le
+% module de reconnaissance manuscrite --- restent volontairement présentés sous
+% forme de critères de décision plutôt que de choix arrêtés, dans la mesure où ils
+% dépendent de contraintes techniques, notamment la compatibilité de l'architecture
+% du modèle de base avec telle ou telle méthode d'adaptation, qui ne peuvent être
+% tranchées qu'au moment de l'implémentation; les hypothèses de
+% recherche formelles, dont la formulation dépend des choix méthodologiques
+% précisés dans ce chapitre, seront formulées à partir des choix méthodologiques
+% plutôt que de les présupposer.
+
+Le chapitre est organisé en cinq sections.
+La section~2.1 construit le cadre conceptuel reliant donnée brute, frugalité et gouvernance documentaire.
+La section~2.2 justifie et détaille la modélisation retenue autour du standard RiC-O. La section~2.3 décrit la constitution du corpus et le protocole d'annotation.
+La section~2.4 présente l'architecture de la chaîne de traitement, module par module --- y compris la question, encore ouverte, de la résolution d'entités entre actes distincts.
+La section~2.5, enfin, définit le protocole expérimental et les critères d'évaluation, organisés selon les deux axes d'efficacité et de frugalité annoncés au chapitre~\ref{chap:etat_art}.
+
+\section{Cadre conceptuel : de la donnée brute à la connaissance gouvernée}
+
+\subsection{De l'information brute à la connaissance structurée}
+
+La chaîne de traitement examinée au chapitre~1 --- reconnaissance manuscrite (section~1.2), extraction sémantique (section~1.3) --- peut être relue comme une succession de transformations qui ajoutent, à chaque étape, un niveau de structure distinct à une même information source. Cette lecture s'inscrit dans la distinction classique entre donnée, information et connaissance \cite{ackoff1989data}, que ce mémoire reprend et formalise pour son objet spécifique.
+
+Au premier niveau, l'image numérisée d'un registre, $I \in \mathbb{R}^{H \times W \times C}$, constitue une donnée brute : une matrice de valeurs de pixels dépourvue, en elle-même, de toute structure symbolique.
+La reconnaissance manuscrite (section~1.2) produit une chaîne de caractères $T = (c_1, \dots, c_n)$ --- une syntaxe, au sens où les symboles sont correctement identifiés et ordonnés, mais sans qu'aucune catégorie sémantique ne leur soit encore associée : le mot \og Amadou \fg{} n'est, à ce stade, qu'une suite de caractères parmi d'autres.
+
+L'extraction d'entités nommées (section~1.3.2) franchit un second seuil en associant à certains segments de $T$ un type sémantique explicite --- une personne, une date, un lieu --- produisant un ensemble $E = \{(m_i, \tau_i)\}$ de mentions typées.
+C'est à ce niveau que l'on peut, au sens strict, parler d'information : une donnée organisée selon une catégorie qui lui donne un sens exploitable.
+
+La connaissance, enfin, n'émerge qu'au troisième niveau, lorsque ces entités sont mises en relation les unes avec les autres --- extraction de relations (section~1.3.4), résolution d'entités (section~1.3.5) --- pour former un graphe $G = (V, E, L)$ (section~1.3.7).
+Une entité isolée, aussi correctement typée soit-elle, ne permet aucune inférence ; ce n'est que reliée à d'autres qu'elle devient exploitable au sens propre --- retrouver tous les actes d'une personne, reconstruire une chaîne de filiation.
+La connaissance est ainsi, dans ce cadre, une propriété relationnelle plutôt qu'une propriété intrinsèque à une donnée isolée.
+
+Cette hiérarchie peut se formaliser comme une composition de transformations
+successives :
+\begin{equation}
+    G = \Pi \circ \mathrm{RE} \circ \mathrm{NER} \circ \mathrm{HTR}(I)
+\end{equation}
+où chaque opérateur correspond à un module de la chaîne détaillée en section~2.4, et $\Pi$ désigne l'étape de résolution d'entités et de peuplement du graphe.
+Cette écriture, reprise et détaillée en section~2.4.1, souligne une propriété critique pour la suite du mémoire : les erreurs introduites à chaque étape ne s'annulent pas mais se propagent --- une erreur de transcription (HTR) peut produire une entité mal typée (NER), qui peut à son tour fausser une relation (RE) ou une résolution d'entités (section~1.3.5).
+La qualité du graphe final dépend donc de la qualité cumulée de la chaîne, non de celle d'un seul de ses maillons, ce qui justifie l'attention portée en section~2.4 à la traçabilité de chaque transformation jusqu'à sa source.
+
+\subsection{La frugalité numérique comme contrainte formalisée}
+
+La frugalité numérique a été introduite au chapitre~1 (section~1.4) comme une propriété de la chaîne de traitement plutôt que du modèle le plus petit dans l'absolu. Cette section formalise cette définition pour l'usage qui en sera fait dans le protocole d'évaluation (section~2.5).
+
+Soit $\Theta$ une configuration de la chaîne de traitement --- un choix de modèles, de précision numérique et de méthode d'adaptation pour chacun des modules HTR, NER/RE et résolution d'entités.
+On associe à $\Theta$ une fonction de qualité $Q(\Theta)$, agrégeant les métriques d'efficacité retenues en section~2.5.1 (par exemple une combinaison de $1 - \mathrm{CER}$ et de $F_1$), et un vecteur de coût $C(\Theta) = (c_1, \dots, c_k)$ regroupant les dimensions de ressources identifiées au chapitre~1 (section~1.4) : taille sur disque, mémoire vive mobilisée, temps de traitement par acte.
+
+Le problème de conception frugale peut alors s'écrire comme une optimisation
+sous contrainte :
+
+\begin{equation}
+    \Theta^\star = \arg\max_{\Theta} \; Q(\Theta) \quad \text{sous contrainte} \quad
+    C(\Theta) \preceq C_{\max}
+\end{equation}
+
+où $C_{\max}$ désigne un budget de ressources fixé par l'infrastructure cible (section~1.4.1) et $\preceq$ une comparaison composante par composante. Plutôt que de rechercher un optimum unique, ce mémoire compare un ensemble fini de configurations $\{\Theta_1, \dots, \Theta_k\}$ --- par exemple une version de référence et une ou plusieurs versions compressées --- au moyen d'une relation de dominance frugale : $\Theta_i$ domine $\Theta_j$ si $C(\Theta_i) \preceq C(\Theta_j)$ et $Q(\Theta_j) - Q(\Theta_i) \leq \delta$, pour un seuil de dégradation acceptable $\delta$ fixé avant l'évaluation.
+
+Cette formalisation a une conséquence méthodologique directe : la frugalité n'est jamais évaluée isolément, mais toujours conjointement à la qualité, conformément au principe de transparence porté par le courant \og Green AI \fg{} --- rapporter systématiquement le coût computationnel au même titre que la performance \cite{schwartz2020greenai}.
+C'est cette même logique de compromis mesuré, plutôt que de minimisation aveugle, qui structurera le protocole d'évaluation de la section~2.5.
+
+\subsection{Gouvernance documentaire et souveraineté : le graphe local comme alternative}
+
+La section~1.1.1 a établi que la valeur probatoire d'un acte d'état civil dépend de son authenticité, de sa fiabilité, de son intégrité et de son exploitabilité \cite{ica2008module2}.
+Cette section examine comment un graphe de connaissances local --- au sens d'un système déployé et administré localement, par opposition à une dépendance à une infrastructure ou à un modèle propriétaire externe --- affecte chacune de ces quatre propriétés, comparé au registre papier d'une part, et à une solution reposant sur une infrastructure cloud ou des modèles propriétaires externes d'autre part.
+
+Sur la traçabilité, d'abord : un registre papier ne permet, par construction, qu'une recherche séquentielle, page après page, sans mécanisme de vérification croisée entre actes liés --- une faiblesse structurelle déjà identifiée en section~1.1.2 comme un facteur favorisant la fraude documentaire.
+Un graphe de connaissances, en conservant pour chaque nœud et chaque arête une provenance explicite jusqu'au segment d'image source (section~1.3.7), rend possible une vérification de cohérence qu'aucune recherche manuelle ne peut égaler à l'échelle d'un fonds entier.
+
+Sur l'intégrité et la préservation, ensuite, le bilan est plus nuancé. La numérisation supprime le risque de perte physique irréversible illustré par l'incendie de la mairie de Yaoundé~VI (section~1.1.2) par exemple, mais y substitue des risques numériques --- corruption, obsolescence des formats, défaillance d'infrastructure --- que seul un cadre de gouvernance archivistique explicite, tel qu'OAIS (section~1.5.1), permet de gérer.
+Le passage au numérique ne supprime donc pas le risque : il le déplace, et impose la même rigueur de gouvernance que celle déjà exigée pour l'archivage physique.
+
+C'est sur la question de la souveraineté que l'argument en faveur d'un système local et frugal, plutôt que d'une solution reposant sur une infrastructure cloud propriétaire externe, prend tout son sens.
+La souveraineté numérique désigne la capacité d'un État à contrôler ses infrastructures numériques, ses données et ses processus technologiques \cite{voa2024souverainete,fratini2025sociotechnical}.
+Or une part substantielle des données produites en Afrique reste hébergée hors du continent \cite{techinafrica2026datacenters}, une externalisation qui expose les données à des législations extraterritoriales --- le \textit{CLOUD Act} américain, par exemple, permet aux autorités des États-Unis de réclamer des données hébergées par des prestataires américains même situées hors de leur territoire \cite{kone2025souveraineteia}.
+Pour une donnée aussi sensible que l'état civil --- identité juridique, filiation, statut familial d'une population entière ---, cette dépendance technologique constitue un risque que la littérature qualifie de \og colonialisme numérique \fg{}, au sens d'une extraction et d'un contrôle des données d'une population par des acteurs externes \cite{coleman2019digitalcolonialism}.
+
+Un graphe de connaissances déployable localement, alimenté par des modèles  frugaux au sens de la section~2.1.2, répond directement à ce risque : il permet à l'administration productrice de conserver le contrôle de ses données sans dépendre d'une infrastructure, d'un fournisseur ou d'un modèle dont la disponibilité, les conditions d'usage ou la juridiction échappent à son autorité.
+La frugalité n'est donc pas seulement, dans ce mémoire, une contrainte technique liée au manque d'infrastructure (section~1.4.1) : elle est aussi une condition de possibilité de la souveraineté documentaire.
+
+\subsection{Modèle conceptuel intégré}
+
+Les trois sous-sections précédentes permettent d'assembler le modèle conceptuel qui structure l'ensemble de ce mémoire, représenté schématiquement à la figure~\ref{fig:modele-conceptuel}.
+L'acte manuscrit constitue le point d'entrée du système ; la reconnaissance manuscrite (module HTR, section~2.4.2) le convertit en texte brut ; l'extraction sémantique (module NER/RE, section~2.4.3) le convertit en entités typées ; la résolution d'entités et le peuplement du graphe (sections~2.4.5 et~2.4.6) le convertissent en connaissance interconnectée, structurée conformément au profil d'application RiC-O défini en section~2.2.
+La frugalité n'intervient pas comme une étape supplémentaire de cette chaîne, mais comme une contrainte transversale s'appliquant à chacun de ses modules --- HTR, NER/RE, résolution d'entités --- ainsi qu'il est indiqué sur le schéma. La gouvernance documentaire et la souveraineté ne constituent pas, quant à elles, une étape du pipeline mais sa finalité : c'est la raison d'être de l'ensemble de la chaîne.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/modele-conceptuel-integre.png}
+    \caption{Modèle conceptuel intégré : de l'acte manuscrit au graphe de connaissances gouverné, sous contrainte de frugalité transversale. \textit{Source : Conception personnelle avec Excalidraw, adaptée de la hiérarchie DIKW \cite{ackoff1989data}}}
+    \label{fig:modele-conceptuel}
+\end{figure}
+
+Ce modèle appelle une précision importante avant d'être détaillé sur le plan méthodologique : les hypothèses de recherche formelles qui permettront d'évaluer chacune de ses composantes --- qualité de la reconnaissance, de l'extraction, complétude et fiabilité du graphe, niveau de frugalité atteint --- ne sont pas encore stabilisées, ainsi qu'annoncé en introduction de ce chapitre.
+Les sections~2.2 à~2.4 précisent les choix méthodologiques nécessaires à leur formulation ; la section~2.5 en propose les critères d'évaluation, préalables à leur énoncé définitif.
+
+\section{Choix et modélisation du standard archivistique RiC-O}
+
+\subsection{Justification du choix}
+
+Quatre standards concurrents auraient pu structurer la modélisation des actes d'état civil de ce mémoire.
+Le tableau~\ref{tab:comparaison-standards} en synthétise la comparaison selon les critères déterminants pour ce travail.
+
+\begin{table}[htbp]
+    \centering
+    \small
+    \caption{Comparaison des standards candidats}
+    \label{tab:comparaison-standards}
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.8cm} *{4}{>{\raggedright\arraybackslash}X}}
+        \toprule
+        \textbf{Critère}                            & \textbf{Dublin Core}               & \textbf{EAD}             & \textbf{OAIS}                      & \textbf{RiC-O}          \\
+        \midrule
+        Nature                                      & Vocabulaire minimal de métadonnées & Description hiérarchique & Modèle fonctionnel de préservation & Ontologie relationnelle \\
+        \midrule
+        Relations typées entre agents               & Absentes                           & Limitées, arbre unique   & Non applicable                     & Natives, extensibles    \\
+        \midrule
+        Nœud personne persistant entre documents    & Non                                & Non                      & Non applicable                     & Oui                     \\
+        \midrule
+        Compatible Linked Data / SPARQL             & Partiel                            & Non (XML)                & Non applicable                     & Oui, nativement         \\
+        \midrule
+        Reconnaissance archivistique internationale & Oui (générique)                    & Oui                      & Oui                                & Oui (ICA)               \\
+        \midrule
+        \textbf{Retenu}                             & Non                                & Non                      & Non (cf. \S1.5.1)                  & \textbf{Oui}            \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+Chacun des trois candidats écartés l'est pour une raison précise, au-delà de ce que le tableau résume.
+Le Dublin Core, ensemble de quinze éléments génériques, offre une simplicité d'implémentation séduisante mais son minimalisme le rend incapable d'exprimer les relations typées et multiples que requiert la modélisation envisagée : il décrit des ressources documentaires isolées, non des réseaux d'agents et d'événements interconnectés.
+OAIS, déjà présenté en section~1.5.1, indique comment archiver, non comment représenter le contenu d'un acte de naissance.
+EAD offrirait la description hiérarchique nécessaire mais reproduirait exactement la limite structurelle --- l'impossibilité de représenter une même personne comme nœud persistant à travers plusieurs documents --- que ce mémoire cherche justement à dépasser.
+
+Un argument additionnel, souvent sous-estimé, joue en faveur de RiC-O face à des ontologies plus riches encore comme CIDOC-CRM : RiC-O revendique explicitement le statut d'\og ontologie de domaine et de référence \fg{} n'empruntant délibérément à aucune autre ontologie du patrimoine culturel à ce stade de son développement \cite{icaegad2025rico11}, ce qui limite le nombre de standards à maîtriser simultanément dans un contexte de ressources humaines et de temps aussi contraint que celui de ce mémoire.
+
+\subsection{Profil d'application RiC-O simplifié pour les actes d'état civil}
+
+Trois types d'actes structurent le corpus. Un \textbf{acte de naissance} met en jeu l'acte lui-même, sa manifestation physique/numérique, l'événement de naissance, l'enfant, le père, la mère, le lieu et la date de naissance, le numéro et la date de l'acte, le déclarant, le ou les témoins, l'officier d'état civil signataire, ainsi que --- observé sur le corpus réel --- le numéro national d'identité (NNI) du déclarant lorsqu'il est renseigné, la profession des parents, la hiérarchie administrative complète du lieu (province, département, commune) et, pour une partie des actes, une mention de \textit{jugement supplétif} attestant que l'acte a été établi a posteriori sur décision de justice plutôt que par déclaration immédiate.
+
+Un \textbf{acte de mariage} met en jeu l'acte, sa manifestation, l'événement de mariage, l'époux, l'épouse, le lieu et la date du mariage, le numéro et la date de l'acte, les témoins, l'officier, le cas échéant une mention de régime matrimonial, le statut matrimonial antérieur de chaque époux (célibataire, veuf, divorcé), la possibilité d'une représentation par procuration plutôt que d'une comparution en personne, et --- pour chacun des deux époux --- une référence explicite à son propre acte de naissance (numéro et lieu d'établissement).
+
+Un \textbf{acte de décès} met en jeu l'acte, sa manifestation, l'événement de décès, la personne décédée, le lieu et la date du décès, le numéro et la date de l'acte, le déclarant, le ou les témoins, l'officier, le domicile du défunt, son statut matrimonial au moment du décès, le lieu où l'acte a été \emph{dressé} --- distinct du lieu du décès lui-même --- ainsi qu'une référence explicite à l'acte de naissance du défunt.
+
+Ces trois listes partagent une structure commune --- un acte, un événement, un ensemble de personnes dans des rôles différenciés, un lieu, une date, un numéro --- ce qui justifie \textit{a posteriori} qu'un même noyau de classes RiC-O, présenté au tableau~\ref{tab:classes-rico}, suffise à modéliser les trois types d'actes ; les champs additionnels identifiés ci-dessus, en revanche, ne requièrent aucune classe supplémentaire, mais des propriétés spécifiques détaillées en section~2.2.3.
+
+\begin{table}[htbp]
+    \centering
+    \small
+    \caption{Classes RiC-O retenues pour le profil}
+    \label{tab:classes-rico}
+    \begin{tabularx}{\textwidth}{
+            >{\raggedright\arraybackslash\hsize=0.8\hsize}X
+            >{\raggedright\arraybackslash\hsize=0.9\hsize}X
+            >{\raggedright\arraybackslash\hsize=1.3\hsize}X
+        }
+        \toprule
+        \textbf{Entité}                  & \textbf{Classe RiC-O}                               & \textbf{Justification}                                                                                  \\
+        \midrule
+        Acte                             & \texttt{rico:Record}                                & Unité documentaire individuelle, plus précis que la superclasse abstraite \texttt{RecordResource}       \\
+        \midrule
+        Manifestation physique/numérique & \texttt{rico:Instantiation}                         & Distingue contenu informationnel et support (original manuscrit vs copie numérique)                     \\
+        \midrule
+        Événement documenté              & \texttt{rico:Event}                                 & Sépare l'événement biographique du document qui l'atteste (distinction Event/Record de RiC-CM)          \\
+        \midrule
+        Type d'événement                 & \texttt{rico:EventType}                             & Catégorise l'événement ; naissance/mariage/décès cités en exemple dans la documentation RiC-O           \\
+        \midrule
+        Personne mentionnée              & \texttt{rico:Person}                                & Sous-classe d'\texttt{Agent} ; nœud persistant réutilisable à travers plusieurs actes (cf.~\S2.4.5)     \\
+        \midrule
+        Groupe familial                  & \texttt{rico:Family}                                & Définition non limitée à la famille nucléaire, usage ponctuel                                           \\
+        \midrule
+        Date                             & \texttt{rico:Date}                                  & Sans sous-classement (supprimé en RiC-O~1.0.2) ; valeur portée par \texttt{normalizedDateValue}         \\
+        \midrule
+        Lieu                             & \texttt{rico:Place}                                 & Entité géographique/historique à part entière dans RiC-CM                                               \\
+        \midrule
+        Type documentaire                & \texttt{DocumentaryFormType} (sous-classes locales) & RiC-O ne prédéfinit pas de vocabulaire pour un acte camerounais ; extension conforme au mécanisme prévu \\
+        \midrule
+        Rôle d'une personne dans un acte & \texttt{rico:RoleType}                              & Distingue témoin, déclarant, officier au sein d'une même relation de type autorat                       \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+% Certains classes de RiC-O sont délibérément écartées de ce profil.
+\texttt{rico:Activity} et ses sous-classes, qui documentent les fonctions administratives à l'échelle d'une institution plutôt que le contenu d'un acte individuel, ne sont pas pertinentes ici. \texttt{rico:Mechanism} et les sous-classes d'\texttt{Agent} autres que \texttt{Person}/\texttt{Group}/\texttt{Family} sont écartées faute de cas d'usage dans un acte d'état civil.
+Les classes de mesure physique (\texttt{CarrierExtent}, \texttt{Coordinates}, \texttt{PhysicalLocation}) sortent du périmètre d'une preuve de concept centrée sur le contenu informationnel plutôt que sur la gestion de collection.
+Ces exclusions réduisent le nombre de classes effectivement instanciées par acte à une dizaine, contre plus d'une centaine disponibles dans RiC-O complet --- une simplification qui ne touche que des dimensions hors du périmètre de ce mémoire (gestion de collection, cycle de vie archivistique), et non les dimensions relationnelles ou onomastiques centrales à sa contribution.
+
+\subsection{Propriétés et relations retenues}
+
+\begin{table}[htbp]
+    \centering
+    \small
+    \caption{Propriétés simples retenues}
+    \label{tab:proprietes-rico}
+    \begin{tabularx}{\textwidth}{
+            >{\raggedright\arraybackslash\hsize=1.1\hsize}X
+            >{\raggedright\arraybackslash\hsize=0.7\hsize}X
+            >{\raggedright\arraybackslash\hsize=0.8\hsize}X
+            >{\raggedright\arraybackslash\hsize=1.4\hsize}X
+        }
+        \toprule
+        \textbf{Propriété}                                      & \textbf{Domaine} & \textbf{Co-domaine}             & \textbf{Rôle}                                                                         \\
+        \midrule
+        \texttt{has\allowbreak Documentary\allowbreak FormType} & Record           & Documentary\allowbreak FormType & Type précis de l'acte                                                                 \\
+        \midrule
+        \texttt{documents}                                      & Record           & Event                           & Relie l'acte à l'événement attesté                                                    \\
+        \midrule
+        \texttt{has\allowbreak OrHad\allowbreak Instantiation}  & Record           & Instantiation                   & Relie l'acte à sa manifestation matérielle/numérique                                  \\
+        \midrule
+        \texttt{identifier}                                     & Thing            & littéral                        & Numéro d'acte (forme simple, par frugalité, plutôt que la classe \texttt{Identifier}) \\
+        \midrule
+        \texttt{has\allowbreak Creation\allowbreak Date}        & Record           & Date                            & Date d'établissement de l'acte                                                        \\
+        \midrule
+        \texttt{has\allowbreak OrHad\allowbreak Participant}    & Event            & Agent                           & Relie l'événement aux personnes qui y prennent part                                   \\
+        \midrule
+        \texttt{occurred\allowbreak AtDate}                     & Event            & Date                            & Date de survenance de l'événement                                                     \\
+        \midrule
+        \texttt{is\allowbreak Associated\allowbreak WithPlace}  & Thing            & Place                           & Lieu, utilisable sur \texttt{Event} comme sur \texttt{Record}                         \\
+        \midrule
+        \texttt{has\allowbreak BirthDate/\allowbreak Place}     & Person           & Date/Place                      & Raccourcis propres à la personne, indépendants de l'acte                              \\
+        \midrule
+        \texttt{has\allowbreak DeathDate/\allowbreak Place}     & Person           & Date/Place                      & Symétriques pour le décès                                                             \\
+        \midrule
+        \texttt{has\allowbreak OrHad\allowbreak AgentName}      & Agent            & littéral                        & Nom de la personne (pseudonymisé en pratique)                                         \\
+        \midrule
+        \texttt{hasCreator}                                     & Record           & Agent                           & Raccourci pour l'officier signataire                                                  \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+Au-delà de ces propriétés binaires, la filiation, l'union conjugale, la fratrie et la rédaction d'un acte sont représentées par des \textbf{relations réifiées} --- des classes plutôt que de simples propriétés --- afin de pouvoir porter, sur la relation elle-même, une certitude et une provenance (section~2.2.4) :
+
+\begin{table}[htbp]
+    \centering
+    \small
+    \caption{Propriétés additionnelles identifiées sur le corpus réel}
+    \label{tab:proprietes-additionnelles}
+    \begin{tabularx}{\textwidth}{
+            >{\raggedright\arraybackslash\hsize=1.15\hsize}X
+            >{\raggedright\arraybackslash\hsize=0.85\hsize}X
+            >{\raggedright\arraybackslash\hsize=0.65\hsize}X
+            >{\raggedright\arraybackslash\hsize=1.35\hsize}X
+        }
+        \toprule
+        \textbf{Propriété}                                                                                         & \textbf{Domaine}                   & \textbf{Co-domaine} & \textbf{Rôle}                                                                                                                \\
+        \midrule
+        \texttt{rico:\allowbreak identifier} (réutilisée)                                                          & \texttt{Person}                    & littéral            & NNI de la personne, quand renseigné --- même propriété générique que pour le numéro d'acte, appliquée à un domaine différent \\
+        \midrule
+        \texttt{rico:\allowbreak identifier} (réutilisée)                                                          & \texttt{Instan\allowbreak tiation} & littéral            & Numéro de volet (copie physique), sous la lecture proposée ci-dessus                                                         \\
+        \midrule
+        \texttt{rico:\allowbreak is\allowbreak Associated\allowbreak With\allowbreak Place} (réutilisée)           & \texttt{Record}                    & \texttt{Place}      & Lieu où l'acte de décès est \og dressé \fg{}, distinct du lieu de l'événement                                                \\
+        \midrule
+        \texttt{ecs:\allowbreak has\allowbreak Occupation} (extension locale)                                      & \texttt{Person}                    & littéral            & Profession, absente du vocabulaire RiC-O natif                                                                               \\
+        \midrule
+        \texttt{ecs:\allowbreak etabli\allowbreak Par\allowbreak Jugement\allowbreak Suppletif} (extension locale) & \texttt{Record}                    & booléen             & Signale un acte établi a posteriori par décision de justice plutôt que par déclaration immédiate                             \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+La hiérarchie administrative complète (province/département/commune) observée sur certains actes de naissance n'est \emph{pas} modélisée comme une hiérarchie de \texttt{Place} imbriqués dans ce profil : seule la commune, niveau pertinent pour la résolution d'entités et la recherche, est retenue comme \texttt{rico:Place} à part entière ; province et département sont conservés comme contexte littéral non structuré.
+Cette simplification, cohérente avec celles déjà justifiées ci-avant, écarte une dimension hors du périmètre des objectifs empiriques du mémoire plutôt qu'une dimension relationnelle centrale à sa contribution.
+
+Les deux références croisées identifiées sur le corpus --- un acte de décès ou de mariage citant le numéro de l'acte de naissance de la personne concernée --- ne sont pas modélisées comme une relation RiC-O entre deux \texttt{Record}.
+Une fois la résolution d'entités (section~2.4.5) effectuée avec succès, l'acte de naissance et l'acte de décès ou de mariage se retrouvent naturellement reliés : tous deux documentent, via leurs événements respectifs, la même \texttt{rico:Person}.
+Le champ correspondant (étiquette \texttt{ACTE\_REF} en section~2.3.3) n'est donc pas une entité à part entière du graphe final, mais un signal d'extraction consommé par le module de résolution --- au même titre que le NNI --- pour privilégier un appariement déterministe sur l'appariement probabiliste par défaut.
+
+% Ce noyau de classes et de relations couvre la modélisation \emph{interne} à un
+% acte donné. Il ne résout pas, en revanche, la question des \textbf{actes
+%     associés} : relier l'acte de naissance d'une personne à son futur acte de
+% mariage, puis à son éventuel acte de décès, suppose de réutiliser le même URI
+% \texttt{rico:Person} comme \texttt{hasOrHadParticipant} de plusieurs événements
+% distincts, documentés par des actes distincts. RiC-O représente nativement cette
+% réutilisation --- rien, sur le plan ontologique, ne l'empêche --- mais ne dit
+% rien sur la façon de \emph{décider} si deux mentions de \og Paul Ngono \fg{},
+% dans deux actes séparés, désignent la même personne. Cette décision est
+% entièrement déléguée au module de résolution d'entités (section~2.4.5) : le
+% profil RiC-O ne fait qu'accueillir son résultat, sous une forme traçable.
+
+% Sont enfin omises, par les mêmes principes de simplification, les propriétés de
+% gestion de cycle de vie archivistique (\texttt{accrualsStatus}, les relations de
+% migration/dérivation entre instanciations, \texttt{wasMergedInto}/\texttt{wasSplitInto}
+% pour les agents) : elles documentent l'histoire de la collection elle-même, non
+% celle des personnes et événements qu'elle atteste, et ne servent à aucun des
+% objectifs empiriques de ce mémoire.
+
+\subsection{Incertitude, provenance, règles de transformation et identifiants}
+
+\subsubsection*{Certitude et provenance}
+
+Trois propriétés génériques, applicables à toute sous-classe de \texttt{rico:Relation}, qualifient une relation plutôt que de l'asserter comme un fait certain indifférencié : \texttt{relationCertainty} (un score numérique), \texttt{isEvidencedBy} (renvoi vers le \texttt{rico:Record} source) et \texttt{relationHasDate}.
+Ce sont elles qui répondent concrètement à la limite identifiée en section~1.2.5 --- le graphe hérite du bruit de la chaîne de reconnaissance et d'extraction : une relation de filiation extraite automatiquement porte, dès sa création, la trace de l'acte source et un score de confiance, plutôt que d'être assertée au même niveau qu'une relation validée manuellement.
+
+\begin{lstlisting}[basicstyle=\ttfamily\small, breaklines=true]
+:rel1 a rico:ChildRelation ;
+    relationHasSource :jeanBaptiste ;
+    relationHasTarget :paulNgono ;
+    isEvidencedBy :acte143 ;
+    relationCertainty "0.86"^^xsd:decimal .
+\end{lstlisting}
+
+\subsubsection*{Règles de transformation}
+
+Le passage des sorties du pipeline (section~2.4) vers ces triplets RDF obéit à des règles de transformation simples, appliquées de façon systématique plutôt qu'au cas par cas.
+Une date extraite par le module NER (section~2.4.3) est portée à la fois par sa forme de surface --- telle que transcrite --- et par une valeur normalisée (\texttt{normalizedDateValue}, format ISO~8601), la forme de surface restant la référence en cas de désaccord, conformément au principe de traçabilité déjà retenu au chapitre~1 (section~1.3.5).
+Un nom de personne extrait est porté par \texttt{hasOrHadAgentName} sans normalisation orthographique à ce stade : les variantes de graphie (\og Fatoumatou \fg{} vs \og Fatoumata \fg{}) ne sont pas résolues à l'écriture du triplet, mais laissées au module de résolution d'entités (section~2.4.5), pour ne pas figer prématurément une hypothèse de rapprochement dans les données elles-mêmes.
+Un rôle extrait par le module RE (témoin, déclarant, parent) détermine directement la relation réifiée instanciée --- \texttt{AuthorshipRelation} qualifiée par le \texttt{RoleType} correspondant, ou \texttt{ChildRelation} --- selon une table de correspondance fixe entre étiquettes de relation et classes RiC-O.
+
+\subsubsection*{Gestion des identifiants}
+
+Les URI des ressources documentaires (\texttt{Record}, \texttt{Instantiation}) sont dérivées directement du numéro d'acte et du registre source, garantissant leur stabilité et leur lisibilité.
+Les URI de personnes posent une difficulté propre : une personne n'a, dans les actes, aucun identifiant stable préexistant.
+Une nouvelle URI \texttt{Person} est donc créée lors de chaque première mention non résolue ; la résolution d'entités (section~2.4.5, formalisée en section~1.3.5) peut ensuite établir un lien entre deux URI jusque-là distinctes.
+Trois états doivent être représentables plutôt que deux : mentions distinctes (aucun lien), candidates (score de rapprochement intermédiaire entre les seuils $T_\lambda$ et $T_\mu$ définis en section~1.3.5, lien conservé mais non confirmé) et résolues (lien confirmé).
+
+À ces trois états s'ajoute désormais un qualificatif sur la \emph{méthode} ayant produit le lien, distinct du niveau de certitude lui-même : une propriété locale \texttt{ecs:\allowbreak matchMethod}, à valeurs contrôlées (\texttt{nni}, \texttt{reference\allowbreak \_explicite}, \texttt{probabiliste}), complète \texttt{relation\allowbreak Certainty} et \texttt{is\allowbreak Evidenced\allowbreak By} sur la relation d'équivalence entre deux \texttt{Person}.
+
+Cette distinction a une justification directe : un lien établi par NNI identique ou par référence explicite à un numéro d'acte (section~2.2.3) mérite d'être distingué, y compris pour un score de certitude comparable, d'un lien obtenu par appariement probabiliste sur nom/date/lieu (section~1.3.5) --- les deux méthodes n'offrant pas les mêmes garanties d'erreur, une évaluation séparée par méthode (section~2.5) sera nécessaire.
+
+\section{Corpus et protocole d'annotation}
+
+\subsection{Matériel, protocole de collecte et caractérisation du corpus}
+La campagne de collecte s'est déroulée à Koumra (Tchad) sur une période de cinq jours consécutifs, pour un volume total de 1568 clichés d'actes d'état civil manuscrits --- naissance, mariage et décès, les actes de naissance étant majoritaires.
+Ramené à la durée de la mission, ce volume correspond à un débit moyen d'environ 314 documents photographiés par jour, un rythme qui a directement conditionné les choix de dispositif et de protocole décrits ci-dessous : la priorité a été donnée à des méthodes d'acquisition rapides, reproductibles et ne nécessitant pas de matériel spécialisé (scanner à plat, banc de reproduction), conformément au principe de frugalité poursuivi par ce mémoire.
+
+\begin{table}[H]
+    \centering
+    \caption{Répartition du corpus collecté à Koumra par type d'acte}
+    \label{tab:repartition-corpus}
+    \begin{tabular}{lc}
+        \toprule
+        \textbf{Type d'acte} & \textbf{Nombre} \\
+        \midrule
+        Naissance            & 1101            \\
+        Mariage              & 152             \\
+        Décès                & 315             \\
+        \midrule
+        \textbf{Total}       & 315             \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+L'acquisition a reposé sur un dispositif entièrement composé de matériel grand public : un smartphone Google Pixel~6a (128~Go), retenu pour sa capacité de capture au format RAW (DNG) --- fonctionnalité rarement disponible sur les terminaux d'entrée de gamme, mais native sur la gamme Pixel --- et pour sa compatibilité avec le mode Ultra~HDR ; un support d'orientation \og KAku~360° \fg{} permettant de fixer le téléphone selon un angle stable et reproductible d'un cliché à l'autre ; un ordinateur portable ThinkPad~T460, utilisé pour le contrôle de la capture en temps réel et la sauvegarde quotidienne des données.
+Le choix d'un matériel ancien et largement répandu, plutôt que d'un équipement neuf ou spécialisé, illustre à l'échelle du dispositif de collecte lui-même le principe de frugalité qui structure la démarche méthodologique de ce mémoire.
+
+Les clichés ont été pris au format 16:9, en mode RAW (conteneur DNG) avec activation du mode Ultra~HDR, à l'aide d'une grille de composition $4\times4$ affichée en surimpression sur le viseur.
+Le choix du format RAW répond à un impératif de préservation du signal : contrairement à un format compressé avec perte, le DNG conserve l'intégralité de la dynamique capturée par le capteur, sans traitement destructif appliqué par le processeur embarqué du téléphone --- une exigence particulièrement importante pour un pipeline de recadrage reposant, comme le détaille la section~2.3.2, sur des critères de seuillage sensibles aux variations fines d'intensité lumineuse.
+Le mode Ultra~HDR élargit la plage dynamique effectivement enregistrée, ce qui limite la perte de détail simultanément dans les zones claires (papier) et sombres (encre, ombre portée de la reliure).
+La grille $4\times4$ a servi d'aide visuelle à l'alignement, en limitant dès la prise de vue les écarts d'inclinaison entre le plan du document et le plan du capteur.
+
+Le téléphone restait fixé en permanence sur le support orientable ; son écran était miroité sur un second dispositif d'affichage, permettant à l'opérateur de vérifier cadrage, netteté et absence de reflet avant chaque déclenchement sans manipuler l'appareil ; le déclenchement s'effectuait à distance.
+Cette combinaison --- support fixe, contrôle visuel déporté, déclenchement sans contact --- visait un double objectif : réduire le flou de bougé, l'appareil n'étant jamais touché au moment de la prise de vue, et maintenir une géométrie de prise de vue aussi constante que possible d'un acte à l'autre, propriété exploitée en section~2.3.2.
+
+\subsection{Numérisation et prétraitement des images}
+
+L'ensemble du pipeline décrit dans cette section repose exclusivement sur des méthodes de vision par ordinateur classiques --- opérations morphologiques, seuillage, détection de contours, profils de projection : à aucune étape un modèle appris n'intervient.
+Ce choix, cohérent avec le principe de frugalité computationnelle défendu en section~2.1.2, permet un traitement intégral du corpus sur un poste de travail standard, sans accélération matérielle spécialisée.
+On note $\mathrm{clip}(v,a,b) = \min(\max(v,a),b)$ l'opérateur d'écrêtage d'une valeur $v$ dans l'intervalle $[a,b]$, utilisé à plusieurs reprises ci-dessous.
+
+\subsubsection*{Structuration des fichiers bruts}
+
+Les fichiers RAW issus de la collecte étaient initialement organisés selon une arborescence reflétant l'organisation physique des registres consultés (lot de capture, type d'acte, année de rédaction), peu adaptée à un traitement automatisé --- répertoires de taille très inégale, certains ne contenant qu'un seul fichier.
+Une étape de restructuration normalise le nommage (type d'acte encodé sur trois lettres, année sur quatre chiffres, valeur conventionnelle lorsque l'année source est partielle ou illisible), répartit les fichiers en lots d'au plus quinze éléments, et renomme chaque fichier de façon déterministe à partir d'une empreinte MD5 tronquée calculée sur son chemin d'origine --- garantissant l'unicité et la reproductibilité du renommage tout en découplant le nom final de la nomenclature propre à l'appareil de capture.
+
+\subsubsection*{Réorientation et recadrage initial}
+
+Cette étape, appliquée uniformément à l'ensemble du corpus, comprend trois opérations séquentielles.
+L'orientation de chaque image est d'abord évaluée par comparaison de sa largeur $W$ et de sa hauteur $H$ ; une image en orientation paysage ($W>H$) est pivotée de 90° pour retrouver l'orientation portrait attendue --- [aucune image du corpus n'a nécessité cette correction, vraisemblablement du fait du support fixe]MAJ.
+
+Un sous-ensemble des documents peut se présenter tête-bêche, notamment lorsque le sens de reliure du registre contraint l'orientation de présentation à l'objectif. Cette anomalie est détectée par appariement de gabarit : une image de référence représentant un caractère fréquent du corpus --- ici la lettre e --- sert de gabarit $T$, comparé par corrélation croisée normalisée à l'image analysée $I$ :
+
+\begin{equation}
+    R(x,y) = \frac{\sum_{x',y'} \left[T(x',y') - \bar T\right]\left[I(x+x',y+y') - \bar I_{x,y}\right]}{\sqrt{\sum_{x',y'} \left[T(x',y') - \bar T\right]^2 \sum_{x',y'} \left[I(x+x',y+y') - \bar I_{x,y}\right]^2}}
+\end{equation}
+
+
+Une correspondance est retenue lorsque $R(x,y) \geq \tau$ ($\tau=0{,}80$), les correspondances redondantes étant fusionnées par suppression des non-maxima.
+Soit $n_0$ le nombre de correspondances sur l'image d'origine et $n_{180}$ le nombre de correspondances après rotation de 180° ; la décision d'inversion suit :
+
+\begin{equation}
+    \text{retourné}(I) = \begin{cases}
+        n_{180}/n_0 \geq \rho & \text{si } n_0 > 0 \\
+        n_{180} > 0           & \text{si } n_0 = 0
+    \end{cases}
+\end{equation}
+
+avec $\rho=1{,}15$, assoupli à $\rho=1{,}05$ pour le sous-corpus des actes de mariage, seul sous-corpus auquel cette détection est appliquée.
+Sur le corpus traité, 87 images (5,5~\%) ont été identifiées comme retournées et corrigées.
+
+Une bande de largeur fixe $\delta=555$~px est enfin retranchée du bord droit de chaque image après correction d'orientation, sans analyse préalable de contenu --- une opération justifiée par la stabilité géométrique du dispositif : le support fixe place systématiquement, à distance constante du bord du cliché, un élément non porteur d'information.
+
+\subsubsection*{Recadrage fin : isolement de la page et nettoyage de la marge de reliure}
+
+La détection des limites de la page combine deux critères de segmentation. Un seuillage adaptatif gaussien (fenêtre $11\times11$, constante $C=2$) :
+
+\begin{equation}
+    M_{\text{adapt}}(x,y) = \begin{cases} 255 & \text{si } I(x,y) > \mu_{x,y} - C \\ 0 & \text{sinon} \end{cases}
+\end{equation}
+
+est combiné à un critère colorimétrique HSV retenant les pixels de faible saturation et forte luminance, caractéristiques du papier ($s_{\max}=70$, $v_{\min}=110$) :
+
+\begin{equation}
+    M_{\text{HSV}}(x,y) = \begin{cases} 255 & \text{si } S(x,y) < s_{\max} \text{ et } V(x,y) > v_{\min} \\ 0 & \text{sinon} \end{cases}
+\end{equation}
+
+Le masque final $M = M_{\text{adapt}} \wedge M_{\text{HSV}}$ réduit à la fois les faux positifs (éléments non-papier de faible contraste local mais de teinte claire) et les faux négatifs (zones de papier fortement ombrées).
+Ce choix, préféré à un seuillage global unique de type Otsu \cite{otsu1979threshold}, répond à une faiblesse connue de ce dernier face aux variations d'éclairage non uniformes propres à une prise de vue au smartphone sur le terrain.
+
+Une carte de contours, extraite par l'opérateur de Canny \cite{canny1986edge} (seuils $30$/$90$), est renforcée par fermeture morphologique directionnelle (éléments structurants allongés verticalement et horizontalement, mieux adaptés que des éléments isotropes à la géométrie rectiligne d'une page de registre).
+Des profils de projection colonne et ligne en sont tirés ; les intervalles où ces profils dépassent un seuil d'activité $\theta=0{,}5$ fournissent les candidats initiaux de délimitation.
+
+Lorsque le rapport hauteur/largeur de la région délimitée tombe sous un seuil minimal ($\rho_{\min}=1{,}9$) --- signe probable d'un cadre contenant deux actes juxtaposés ---, une procédure de désambiguïsation est déclenchée.
+Un signal composite de force de bord, combinant densité de contours, assombrissement relatif à la médiane, et gradients des profils de projection et du dixième centile d'intensité, permet d'identifier des positions candidates de séparation ; chaque
+paire de candidats est évaluée par une fonction de score combinant taux de remplissage, largeur relative, conformité à un rapport hauteur/largeur cible ($\rho_{\text{cible}}=2{,}35$) et force de bord aux deux extrémités, la paire maximisant ce score étant retenue.
+
+Les bornes retenues sont affinées par accrochage aux contours dans une fenêtre de tolérance de 45~px, puis la région est consolidée par fermeture morphologique isotrope avant extraction de sa plus grande composante connexe.
+
+Une seconde passe traite spécifiquement la marge gauche, susceptible de conserver une portion de la zone de reliure.
+L'image est fortement lissée (noyau $21\times21$, pour ne conserver que les structures de grande échelle et s'affranchir des traits fins de l'écriture), recontrastée par égalisation d'histogramme adaptative à contraste limité \cite{zuiderveld1994clahe}, puis ses contours extraits par l'opérateur de Canny (seuils $100$/$200$).
+Le seuil de détection du profil de projection résultant est calibré dynamiquement pour chaque image, en fonction de sa propre densité globale de contours, plutôt que fixé uniformément pour l'ensemble du corpus.
+Un décalage de sécurité de 35~px est enfin retranché de la borne gauche retenue pour déterminer l'abscisse définitive de recadrage.
+
+Aucune étape de correction géométrique de perspective (homographie) n'intervient dans ce pipeline : le protocole de collecte (support fixe, grille d'alignement, contrôle visuel du cadrage avant déclenchement, section~2.3.1) a été conçu pour limiter cette distorsion dès la prise de vue plutôt que d'en reporter la correction sur un traitement algorithmique coûteux en aval --- un choix cohérent avec le principe de frugalité, mais qui n'élimine pas nécessairement toute distorsion résiduelle, en particulier au voisinage de la reliure d'un registre relié. Ce point est repris comme limite méthodologique au chapitre~\ref{chap:experimentations}.
+
+\subsubsection*{Bilan}
+
+L'enchaînement complet --- restructuration, réorientation, recadrage en deux temps --- a été appliqué à l'intégralité du corpus (1568 images) sans échec de traitement, pour un temps de recadrage total d'environ 595 secondes (débit approximatif de 2,6 images par seconde), sur un poste de travail standard sans accélération matérielle dédiée.
+Les paramètres complets du pipeline (noyaux, seuils, marges) sont regroupés en annexe~\ref{app:parametres-pretraitement} plutôt que reproduits ici. Les images ainsi normalisées constituent l'entrée du module de reconnaissance manuscrite détaillé en section~2.4.2.
+
+\subsection{Protocole de transcription et d'annotation des entités}
+
+Deux protocoles d'annotation distincts, portant sur deux couches différentes de la chaîne de traitement, sont nécessaires pour constituer les jeux d'entraînement et d'évaluation du mémoire.
+
+\subsubsection*{Transcription de référence pour la reconnaissance manuscrite}
+
+L'adaptation de Kraken au corpus (section~2.4.2) requiert une vérité de terrain --- une transcription de référence alignée sur l'image --- pour un sous-ensemble représentatif des actes collectés.
+Cette transcription est produite au moyen d'eScriptorium \cite{kiessling2019escriptorium}, plateforme développée dans le même écosystème que Kraken et conçue pour l'annotation de documents manuscrits historiques : segmentation en lignes, transcription semi-manuelle ligne par ligne, et export dans un format directement exploitable pour l'entraînement du modèle.
+
+\subsubsection*{Annotation des entités nommées}
+
+L'annotation des entités destinées à l'entraînement du module NER/RE (section~2.4.3) est réalisée dans Label Studio, sous forme de spans délimités par des offsets de caractères sur le texte transcrit --- un format naturel pour un annotateur humain, indépendant du tokenizer du modèle, et trivialement reconvertible vers un format d'entraînement token par token (BIO) au moment de l'entraînement plutôt qu'à l'annotation elle-même.
+
+Le jeu d'étiquettes retenu, résultat de l'examen des champs identifiés sur un échantillon du corpus (section~2.2.2), comprend : \texttt{PER} (personne), \texttt{ROLE} (fonction --- déclarant, témoin, officier, et, pour un acte de mariage, la partie principale elle-même), \texttt{PARENTE} (locution de filiation ou d'union), \texttt{ACTE} (numéro de l'acte lui-même), \texttt{ACTE\_REF} (numéro d'un acte référencé, notamment l'acte de naissance cité dans un acte de décès ou de mariage), \texttt{NNI} (numéro national d'identité, lorsque renseigné), ainsi que les paires génériques \texttt{DATE\_ACTE}/\texttt{LIEU\_ACTE} et \texttt{DATE\_EVENEMENT}/\texttt{LIEU\_EVENEMENT}, ce dernier couple s'appliquant indifféremment à la naissance, au mariage ou au décès selon le type d'acte annoté.
+Les étiquettes génériques \texttt{DATE} et \texttt{LOC}, héritées du modèle de base, sont conservées mais réservées aux cas où le rôle précis d'une date ou d'un lieu ne peut être déterminé avec certitude --- une exception documentée plutôt qu'un choix par défaut, pour limiter le bruit d'étiquetage inhérent à un contexte d'annotation par un seul annotateur (section~2.3.4) sur un corpus de taille modeste.
+Les étiquettes \texttt{ORG} et \texttt{MISC} du modèle de base sont abandonnées, aucun cas d'usage pertinent n'ayant été identifié sur le corpus.
+
+Ce choix de jeu d'étiquettes détermine directement la stratégie d'adaptation du modèle (section~2.4.3) : \texttt{camembert-ner-with-dates} étant étendu par reconstruction de sa couche de classification finale plutôt que par ajout d'un second modèle dédié, les catégories déjà connues du modèle de base (\texttt{PER}, \texttt{LOC}, \texttt{DATE}) doivent continuer à être annotées au même titre que les catégories nouvelles, la couche reconstruite ne conservant aucune mémoire des poids appris sur le domaine d'origine.
+
+\subsection{Fiabilité de l'annotation et limites}
+
+L'annotation --- transcription de référence comme entités nommées --- a été réalisée par un annotateur unique, sans mesure d'accord inter-annotateur.
+Cette limite, à énoncer explicitement plutôt qu'à minimiser, restreint la portée des résultats du chapitre~3 : l'absence de second annotateur ne permet pas d'estimer la part de variabilité subjective dans les décisions d'étiquetage, notamment pour les cas ambigus (graphie douteuse, rôle non explicite d'une date ou d'un lieu) que seul un accord croisé permettrait de quantifier.
+
+Deux mesures partielles atténuent, sans l'éliminer, ce risque.
+D'une part, la règle retenue en section~2.3.3 pour \texttt{DATE}/\texttt{LOC} --- étiquette générique en cas d'incertitude plutôt que choix forcé d'une catégorie précise --- réduit la probabilité qu'une même situation ambiguë soit étiquetée différemment selon le moment de l'annotation.
+D'autre part, la structure fortement formulaire des actes (section~2.2.2) limite le nombre de configurations réellement rencontrées, ce qui réduit --- sans le supprimer --- l'espace des décisions véritablement discrétionnaires laissées à l'annotateur.
+
+% Cette limite devra être rappelée explicitement au moment d'interpréter les métriques d'annotation-dépendantes du chapitre~3 (précision, rappel, F1 du module NER/RE, section~2.5.1) : ces métriques mesurent un accord entre le modèle et un référentiel produit par une seule personne, non une vérité de terrain validée par consensus.
+
+\section{Architecture de la chaîne de traitement}
+
+\subsection{Vue d'ensemble et modèle formel du pipeline}
+
+La section~2.1.1 a introduit une écriture simplifiée du pipeline, $G = \Pi \circ \mathrm{RE} \circ \mathrm{NER} \circ \mathrm{HTR}(I)$, suffisante pour poser le cadre conceptuel du chapitre mais imprécise sur un point : elle traite $G$ comme la sortie d'une unique image $I$, alors que la résolution d'entités $\Pi$ est par nature une opération \emph{inter-actes}, qui compare une mention à l'ensemble des mentions déjà rencontrées ailleurs dans le corpus, et ne peut donc être fonction d'un seul acte isolé.
+Cette section affine le modèle en deux niveaux distincts --- local, traité acte par acte, puis corpus, par agrégation --- avant que les sections~2.4.2 à~2.4.6 ne détaillent chacun des modules qui les composent.
+
+\subsubsection*{Niveau local}
+
+Pour chaque acte $k \in \{1,\dots,N\}$, avec $N=1568$ (section~2.3.1), trois
+transformations s'enchaînent séquentiellement sur l'image source $I_k \in
+    \mathbb{R}^{H\times W \times C}$ issue du prétraitement (section~2.3.2) :
+
+\begin{equation}
+    T_k = \mathrm{HTR}(I_k;\, \Theta_{\mathrm{HTR}}), \qquad
+    E_k = \mathrm{NER}(T_k;\, \Theta_{\mathrm{NER}}), \qquad
+    R_k = \mathrm{RE}(E_k,\, \tau_k)
+\end{equation}
+
+où $T_k \in \Sigma^{*} \times \mathrm{Pos}$ est le texte transcrit, ancré par position (ligne, mot) dans l'image source --- condition nécessaire pour que la provenance \texttt{isEvidencedBy} (section~2.2.4) puisse pointer vers un segment précis plutôt que vers l'acte entier ---, $E_k = \{(m_i, \mathrm{type}_i, [\mathrm{d'ebut}_i,\mathrm{fin}_i])\}_i$ l'ensemble des entités typées et positionnées produites par le module NER (section~2.4.3), et $R_k$ l'ensemble des relations locales à l'acte $k$.
+
+Ce dernier point répond directement à la question de l'intégration de RE dans le pipeline : \textbf{RE ne prend pas le texte brut $T_k$ en entrée, mais la sortie déjà typée et positionnée du NER, $E_k$}.
+Une relation de filiation, par exemple, se déduit de la proximité d'un span étiqueté \texttt{PARENTE} avec les mentions \texttt{PER} qui l'entourent (section~2.3.3) --- RE n'a donc pas besoin d'une compréhension sémantique générale de la phrase, mais applique des règles de proximité positionnelle, indexées par le second argument $\tau_k$, le type de l'acte (naissance, mariage, décès), connu à l'avance depuis la structuration du corpus (section~2.3.1) plutôt qu'inféré par le pipeline lui-même.
+Ce choix, détaillé en section~2.4.3, a une conséquence qu'il faut assumer explicitement : NER et RE restent \emph{séquentiels}, non conjoints (par opposition aux architectures d'extraction jointe entités-relations évoquées en section~1.3.4) --- un choix cohérent avec la frugalité, mais qui hérite de la propriété de propagation d'erreur déjà annoncée en section~2.1.1 : une erreur de typage en $E_k$ ne peut être corrigée par RE, seulement propagée dans $R_k$.
+
+Chaque acte produit ainsi un fragment de graphe local, encore isolé des autres :
+\begin{equation}
+    g_k = (E_k, R_k)
+\end{equation}
+
+
+\subsubsection*{Schéma du pipeline}
+
+La figure~\ref{fig:pipeline-local-corpus} représente ce modèle à deux niveaux --- traitement local en flux, puis agrégation au niveau du corpus.
+
+% \begin{verbatim}
+% ====================================================================
+%  NIVEAU LOCAL -- par acte k (k = 1..N), traitement en flux, frugal
+% ====================================================================
+
+%    I_k                T_k               E_k              R_k
+%    image RAW/PNG      texte ancre       entites typees   relations
+%    in R^(HxWxC)        in Sigma* x Pos   + positionnees   locales
+%    (S.2.3.2)           (S.2.4.2)         (S.2.4.3)        (S.2.4.3)
+
+%  +-------+   HTR   +-------+   NER   +-------+   RE   +-------+
+%  |  I_k  | ------> |  T_k  | -----> |  E_k  | -----> |  R_k  |
+%  +-------+         +-------+        +-------+        +-------+
+%  Theta_HTR          Theta_NER         tau_k = type
+%  = Kraken           = camembert-ner-   d'acte, regles
+%  (CRNN+CTC,          with-dates         positionnelles
+%   S.2.4.2)           etendu (S.2.4.3)   (S.2.4.3)
+%                                              |
+%                                              v
+%                                      +-----------------+
+%                                      | g_k = (E_k,R_k) |  fragment local
+%                                      +-----------------+
+
+%     ... repete independamment pour k = 1, ..., N = 1568 (S.2.3.1) ...
+
+% ====================================================================
+%  NIVEAU CORPUS -- agregation inter-actes (non frugal en isolation)
+% ====================================================================
+
+%    { g_1, g_2, ..., g_N }
+%             |
+%             |  Pi : resolution d'entites, Theta_Pi = (T_lambda,T_mu)
+%             |       hierarchie NNI > ACTE_REF > Fellegi-Sunter
+%             |       (S.2.4.5)
+%             v
+%    +------------------+
+%    |   G = (V, E, L)  |   graphe de connaissances global (S.1.3.7)
+%    +------------------+
+%             |
+%             |  sigma : serialisation RDF, profil RiC-O (S.2.2)
+%             |          regles de transformation (S.2.2.4)
+%             v
+%    +-------------------------------+
+%    | {(s,p,o)} c V x P x (V u Lit) |   triplets RDF (peuplement, S.2.4.6)
+%    +-------------------------------+
+
+%   Notation : S.x.x = section x.x du memoire ; "c" = inclusion (subset) ;
+%   "u" = union ; Sigma* x Pos = chaines de caracteres ancrees par position.
+% \end{verbatim}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth, keepaspectratio]{figures/pipeline_local_corpus.png}
+    \caption{Architecture opérationnelle du traitement en deux niveaux : traitement local frugal par acte ($k \in [1..N]$) et agrégation au niveau corpus. \textit{Source : Conception personnelle, avec Excalidraw.}}
+    \label{fig:pipeline-local-corpus}
+\end{figure}
+
+\subsubsection*{Niveau corpus}
+
+Une fois les $N$ fragments locaux produits, la résolution d'entités $\Pi$ (section~2.4.5) les agrège en un graphe unique :
+\begin{equation}
+    G = \Pi\big(\{g_k\}_{k=1}^{N};\, \Theta_\Pi\big), \qquad \Theta_\Pi = (T_\lambda, T_\mu)
+\end{equation}
+où $\Theta_\Pi$ regroupe les seuils de décision du modèle de Fellegi et Sunter repris de la section~1.3.5.
+$\Pi$ accomplit ici deux opérations distinctes : fusionner les nœuds \texttt{Person} équivalents entre fragments, selon la hiérarchie de méthodes établie en section~2.4.5 (NNI, puis référence explicite \texttt{ACTE\_REF}, puis appariement probabiliste en repli) ; et dériver des relations invisibles dans tout fragment pris isolément --- le cas d'une relation de fratrie entre deux actes de naissance partageant les deux mêmes parents (section~1.3), qui n'existe qu'\emph{après} résolution, en est l'illustration directe.
+
+Le graphe $G=(V,E,L)$ ainsi obtenu (section~1.3.7) est enfin sérialisé en
+triplets RDF conformes au profil d'application RiC-O (section~2.2), selon les
+règles de transformation fixées en section~2.2.4 :
+\begin{equation}
+    \sigma(G) = \{(s,p,o)\} \subseteq V \times P \times (V \cup \mathrm{Lit})
+\end{equation}
+
+C'est cette sortie que le module de peuplement (section~2.4.6) insère dans la base de graphe retenue.
+
+\subsubsection*{Fonction globale}
+
+L'ensemble du pipeline, des $N$ images sources aux triplets RDF, se résume par la composition :
+\begin{equation}
+    \Phi\big((I_1,\dots,I_N)\big) \;=\; \sigma\Big(\Pi\big(\{\, \mathrm{RE}(\mathrm{NER}(\mathrm{HTR}(I_k;\Theta_{\mathrm{HTR}});\Theta_{\mathrm{NER}}),\, \tau_k) \,\}_{k=1}^{N};\, \Theta_\Pi\big)\Big)
+\end{equation}
+
+Cette écriture rend explicite ce que la version simplifiée de la section~2.1.1 laissait implicite : le pipeline dépend d'une configuration $\Theta = (\Theta_{\mathrm{HTR}}, \Theta_{\mathrm{NER}}, \Theta_\Pi)$ --- exactement la configuration dont la section~2.1.2 a formalisé l'arbitrage qualité/ressources ($Q(\Theta)$, $C(\Theta)$, dominance frugale).
+RE n'apparaît volontairement pas dans $\Theta$ : ses règles, indexées par $\tau_k$, ne sont pas apprises et n'ont donc pas de paramètres à faire varier dans le protocole d'évaluation de la section~2.5 --- une différence de nature entre modules qui sera reprise en section~2.4.4.
+
+Les sections suivantes détaillent chacun de ces modules : le module de reconnaissance manuscrite et $\Theta_{\mathrm{HTR}}$ (section~2.4.2), le module d'extraction sémantique NER/RE et $\Theta_{\mathrm{NER}}$ (section~2.4.3), le protocole de frugalité appliqué à $\Theta_{\mathrm{HTR}}$ et $\Theta_{\mathrm{NER}}$ (section~2.4.4), la résolution d'entités $\Pi$ et $\Theta_\Pi$ (section~2.4.5), et le peuplement du graphe à partir de $\sigma(G)$ (section~2.4.6).
+
+\subsection{Module de reconnaissance manuscrite (Kraken)}
+
+Le module de reconnaissance manuscrite repose sur Kraken (section~1.2.2), dont l'architecture --- réseau convolutif-récurrent hybride couplé à un décodage CTC --- diffère structurellement des architectures Transformer examinées en section~1.3 : Kraken n'est pas nativement compatible avec les méthodes d'adaptation par adaptateurs de rang faible (LoRA/QLoRA, section~1.4.5), conçues et outillées (bibliothèque \texttt{peft}) pour des couches linéaires de type Transformer, et non pour un réseau convolutif-récurrent défini par une spécification d'architecture propre à Kraken (VGSL).
+
+Le critère de décision posé en introduction de ce chapitre --- vérifier quelles méthodes d'adaptation l'architecture du modèle de base supporte réellement, plutôt que d'imposer une méthode uniforme à tous les modules --- tranche ainsi en faveur d'un \textbf{fine-tuning complet} ($\Theta_{\mathrm{HTR}}$ regroupant l'ensemble des poids du réseau), par transfert d'apprentissage depuis un modèle Kraken pré-entraîné sur un corpus de manuscrits en écriture latine, plutôt que par adaptation paramétrique économe ou entraînement depuis une initialisation aléatoire.
+Ce choix se justifie par deux arguments convergents plutôt que par la seule contrainte de compatibilité.
+D'une part, un entraînement depuis zéro exigerait un volume de données annotées largement supérieur à celui que la vérité de terrain produite via eScriptorium (section~2.3.3) peut raisonnablement fournir.
+Ainsi --- et c'est l'argument qui referme la question laissée ouverte depuis le premier plan de ce chapitre ---, l'intérêt des méthodes d'adaptation économe en paramètres (section~1.4.5) tient à la taille des modèles auxquels elles s'appliquent habituellement : des modèles de plusieurs centaines de millions à plusieurs milliards de paramètres, pour lesquels réentraîner l'intégralité des poids devient prohibitif.
+Kraken, dont l'architecture reste de taille modeste au regard de ces modèles, ne pose pas ce problème avec la même acuité : un fine-tuning complet y demeure une opération frugale en elle-même, sans qu'il soit nécessaire de mobiliser l'outillage supplémentaire d'une adaptation par adaptateurs.
+La frugalité de $\Theta_{\mathrm{NER}}$ (section~2.4.3), où le rapport de taille inverse cette conclusion, illustrera par contraste la pertinence de ce critère plutôt que son caractère arbitraire.
+
+L'adaptation utilise le mécanisme de redimensionnement de l'alphabet de sortie propre à Kraken (\texttt{ketos train --resize}), nécessaire dès lors que le modèle de base n'a pas été entraîné sur l'ensemble des caractères et diacritiques rencontrés dans le corpus (noms et toponymes locaux, chiffres manuscrits, abréviations administratives).
+La vérité de terrain produite en section~2.3.3 est répartie en ensembles d'entraînement, de validation et de test au niveau de la ligne --- unité de traitement native de Kraken --- plutôt qu'au niveau de l'acte, ce qui suppose de veiller, lors de cette répartition, à ce que les lignes d'un même acte n'apparaissent jamais simultanément dans plusieurs ensembles, sous peine de surestimer la performance mesurée en section~2.5.1 par une forme de fuite de données entre ensembles.
+
+\subsection{Module d'extraction sémantique (NER/RE)}
+
+Le module d'extraction sémantique traite en deux temps la sortie du module HTR : reconnaissance d'entités nommées, puis extraction de relations, conformément au modèle formel posé en section~2.4.1.
+
+\subsubsection*{Module NER}
+
+Le NER repose sur \texttt{camembert-ner-with-dates} (section~2.3.3), un modèle \texttt{CamembertForTokenClassification} dont la tête de classification --- 11 étiquettes au format BIO2 sur cinq types (\texttt{PER}, \texttt{LOC}, \texttt{ORG}, \texttt{MISC}, \texttt{DATE}) --- est reconstruite pour accueillir le jeu d'étiquettes retenu en section~2.3.3.
+Cette reconstruction, à la différence du fine-tuning complet retenu pour Kraken (section~2.4.2), s'accompagne d'une adaptation par adaptateurs de rang faible (LoRA, section~1.4.5) plutôt que d'un réentraînement de l'ensemble des poids de l'encodeur : l'architecture Transformer de CamemBERT, contrairement à celle de Kraken, est nativement compatible avec ce mécanisme via la bibliothèque \texttt{peft}, et sa taille --- plusieurs dizaines de millions de paramètres pour l'encodeur seul --- rend l'économie de paramètres entraînés significative, conformément au critère de décision établi en section~2.4.2.
+Seule la nouvelle tête de classification, reconstruite, est entraînée dans son intégralité --- une couche linéaire de taille réduite, dont le réentraînement complet ne remet pas en cause la frugalité de l'adaptation.
+
+\subsubsection*{Module RE}
+
+Ainsi qu'établi en section~2.4.1, RE opère sur la sortie déjà typée et positionnée du NER, $E_k$, et non sur le texte brut.
+L'extraction de relations est réalisée par un ensemble de règles positionnelles, paramétrées par le type d'acte $\tau_k$, plutôt que par un modèle appris --- choix justifié par la structure fortement formulaire des actes (section~2.2.2) et par la taille du corpus, insuffisante pour entraîner un classifieur de relations dans de bonnes conditions (section~1.3.4).
+
+Chaque règle associe à une entité \og relationnelle \fg{} --- un span \texttt{PARENTE}, \texttt{ROLE}, \texttt{ACTE\_REF} ou \texttt{NNI} --- une ou plusieurs entités \texttt{PER} ou \texttt{Record} voisines, dans une fenêtre de proximité textuelle définie sur $T_k$, puis détermine le type de relation à instancier (section~2.2.3) à partir d'une table de correspondance indexée par (type de l'entité relationnelle, motif lexical reconnu, $\tau_k$).
+Un span \texttt{PARENTE} de motif \og fils de \fg{} ou \og fille de \fg{}, par exemple, instancie une \texttt{rico:ChildRelation} entre la mention \texttt{PER} de l'enfant --- déterminée par la structure de l'acte plutôt que par la seule proximité, un acte de naissance nommant systématiquement l'enfant avant ses parents --- et la mention \texttt{PER} la plus proche suivant le span.
+Un span \texttt{ROLE} de valeur \og témoin \fg{} ou \og déclarant \fg{} instancie une \texttt{rico:AuthorshipRelation} qualifiée par le \texttt{RoleType} correspondant, entre le \texttt{Record} de l'acte et la mention \texttt{PER} associée.
+Un span \texttt{ACTE\_REF} ou \texttt{NNI} n'instancie quant à lui aucune relation entre personnes : il est directement transmis à la résolution d'entités (section~2.4.5) comme signal d'appariement, non comme une relation du graphe final (section~2.2.3).
+
+Formellement, $R_k$ est ainsi l'ensemble des quadruplets $(\rho, s, o, \epsilon)$
+produits par cette table de correspondance, où $\rho$ est le type de relation
+instanciée, $s$ et $o$ les entités source et cible, et $\epsilon$ le span de
+$E_k$ ayant servi d'évidence --- conservé pour alimenter \texttt{isEvidencedBy}
+(section~2.2.4) au moment de la sérialisation.
+
+N'étant pas apprise, cette table de règles ne nécessite pas de jeu d'entraînement dédié ; son évaluation (section~2.5.1) requiert néanmoins un sous-ensemble d'actes dont les relations attendues sont annotées manuellement, afin de mesurer précision et rappel de l'extraction --- une annotation distincte de celle réalisée pour le NER (section~2.3.3), bien que portant sur les mêmes actes.
+
+\subsection{Module de frugalité}
+
+Le module de frugalité applique, aux modules HTR et NER, le cadre formalisé en section~2.1.2 : comparer un ensemble fini de configurations $\{\Theta_1,\dots,\Theta_k\}$ au moyen de la relation de dominance frugale plutôt que de rechercher un optimum unique.
+
+Pour le module HTR, dont le fine-tuning complet a été retenu en section~2.4.2, la frugalité s'applique \emph{a posteriori} au modèle déjà adapté : une configuration de référence $\Theta_{\mathrm{HTR}}^{\mathrm{ref}}$ (pleine précision, FP32) est comparée à une configuration quantifiée $\Theta_{\mathrm{HTR}}^{\mathrm{INT8}}$, obtenue par quantification post-entraînement (PTQ, section~1.4.2).
+L'élagage (section~1.4.3) constitue une seconde option, mobilisable en complément de la quantification si les résultats du protocole d'évaluation (section~2.5) le justifient, plutôt qu'appliqué systématiquement.
+
+Pour le module NER, la frugalité s'inscrit directement dans le choix de la méthode d'adaptation elle-même, contrairement au HTR : trois configurations sont retenues pour comparaison --- une adaptation LoRA en précision standard (16~bits) $\Theta_{\mathrm{NER}}^{\mathrm{LoRA}}$, déjà motivée en section~2.4.3 par la taille de l'encodeur ; une adaptation QLoRA (section~1.4.5) $\Theta_{\mathrm{NER}}^{\mathrm{QLoRA}}$, où le modèle de base est quantifié sur 4~bits (NF4) et gelé, seuls les adaptateurs étant entraînés en précision standard ; et, à titre de référence, un fine-tuning complet de l'encodeur $\Theta_{\mathrm{NER}}^{\mathrm{\text{réf}}}$, plus coûteux mais fournissant un plafond de qualité auquel comparer les deux configurations économes.
+Cette troisième configuration n'est pas un choix de déploiement --- elle ne sera pas retenue en production, quel que soit son résultat --- mais un point de comparaison nécessaire pour évaluer, au sens de la section~2.1.2, ce que LoRA et QLoRA sacrifient réellement en performance ($Q$) contre leur gain en ressources ($C$).
+
+Ces configurations sont détaillées ici pour leur rôle dans l'architecture du pipeline ; leur comparaison chiffrée --- taille sur disque, mémoire vive, temps de traitement par acte --- relève du protocole d'évaluation (section~2.5.2), non de cette section.
+
+\subsection{Résolution d'entités inter-actes}
+
+La résolution d'entités $\Pi$ agrège les fragments locaux $\{g_k\}$ en un graphe unique (section~2.4.1), en tranchant, pour chaque paire de mentions \texttt{Person} appartenant à des actes distincts, si elles désignent ou non la même personne.
+Cette section formalise la hiérarchie de méthodes esquissée en section~2.2.3 et le mécanisme de \textit{blocking} nécessaire à sa mise en œuvre à l'échelle du corpus.
+
+\subsubsection*{Hiérarchie des méthodes d'appariement}
+
+Trois méthodes sont appliquées, par ordre de priorité décroissant en fiabilité, à toute paire de mentions candidates $(p_i, p_j)$ :
+
+\begin{enumerate}
+    \item \textbf{Appariement par NNI.} Si les deux mentions portent un NNI extrait (section~2.3.3) et que ces NNI coïncident, le lien est établi avec un niveau de certitude maximal, sans recours aux méthodes suivantes.
+    \item \textbf{Appariement par référence explicite.} Si l'une des mentions provient d'un span \texttt{ACTE\_REF} (section~2.3.3) dont la valeur correspond au numéro d'acte de l'autre mention, le lien est établi --- sous réserve que le numéro d'acte référencé soit effectivement présent dans le corpus, ce qui n'est pas garanti pour tout acte de décès ou de mariage.
+    \item \textbf{Appariement probabiliste.} En l'absence des deux signaux précédents --- le cas le plus fréquent, le NNI et la référence explicite n'étant renseignés ou lisibles que sur une fraction des actes ---, le modèle de Fellegi et Sunter (section~1.3.5) s'applique sur les attributs disponibles (nom, prénom, date, lieu), avec les seuils $T_\lambda \leq T_\mu$ déjà définis, produisant l'un des trois états retenus en section~2.2.4 : lien confirmé, candidat, ou absence de lien.
+\end{enumerate}
+
+Chaque lien établi porte le qualificatif \texttt{ecs:matchMethod} correspondant (section~2.2.4), permettant d'évaluer séparément, en section~2.5.1, la fiabilité de chacune des trois méthodes plutôt qu'un taux de résolution agrégé qui masquerait leurs garanties d'erreur très différentes.
+
+\subsubsection*{Stratégie de blocage}
+
+Comparer exhaustivement chaque mention \texttt{Person} à toutes les autres présenterait une complexité quadratique en le nombre de mentions du corpus, prohibitive au regard du principe de frugalité (section~2.1.2).
+Une stratégie de \textit{blocking} restreint les comparaisons probabilistes aux seules paires partageant une même \emph{clé de blocage} $\beta$, construite par exemple à partir du nom de famille normalisé et d'une tranche de décennie de naissance --- les mentions de \texttt{Person} ne partageant pas cette clé n'étant jamais comparées entre elles.
+
+Ce choix a un coût qu'il convient d'assumer explicitement : deux mentions correctement liées par appariement probabiliste, mais dont la clé de blocage diffère --- par exemple à cause d'une erreur de transcription HTR sur le nom lui-même (section~1.2.5) ---, ne seront jamais comparées, et donc jamais liées.
+Le blocage n'est ainsi pas appliqué aux appariements par NNI ou par référence explicite (points~1 et~2 ci-dessus), qui restent exhaustifs sur l'ensemble du corpus --- ces signaux, plus rares mais plus fiables, ne présentant pas le même risque combinatoire.
+
+\subsubsection*{Résolution en lot}
+
+La résolution $\Pi$ est exécutée en lot (\textit{batch}) sur l'ensemble du corpus plutôt qu'en flux continu, contrairement au traitement local (section~2.4.1) : les blocs de la stratégie ci-dessus ne peuvent être constitués de façon pertinente qu'une fois l'ensemble des mentions extraites.
+Ce choix, adapté à l'évaluation conduite dans ce mémoire sur un corpus figé, n'exclut pas une extension future vers une résolution incrémentale --- chaque nouvel acte comparé au graphe déjà constitué plutôt qu'à l'ensemble reconstruit --- pertinente pour un déploiement en production où les actes seraient numérisés en continu ; cette extension sort toutefois du périmètre de ce mémoire.
+
+\subsection{Peuplement et interrogation du graphe de connaissances}
+
+Le peuplement du graphe consiste à insérer les triplets $\sigma(G)$ produits en section~2.4.1 dans une base de graphe interrogeable.
+Deux familles de bases étaient envisagées en introduction de ce chapitre : les bases de graphe orientées propriétés (Neo4j, interrogées en Cypher) et les triplestores RDF natifs (GraphDB, interrogés en SPARQL).
+Ce mémoire retient \textbf{GraphDB}, pour une raison de cohérence directe avec les choix de modélisation déjà actés : le profil d'application RiC-O (section~2.2) est défini en RDF/OWL, sérialisé en triplets sujet-prédicat-objet (section~1.3.6), et interrogé nativement en SPARQL --- un alignement qu'imposerait de rompre le choix d'une base orientée propriétés, au prix d'une conversion supplémentaire entre le modèle RDF du profil et le modèle de propriétés d'un graphe Neo4j.
+Ce choix n'élimine pas Neo4j comme option technique valable dans l'absolu --- son écosystème de requêtes graphiques est réputé plus mature pour certains usages analytiques ---, mais l'écarte pour ce mémoire au nom de la simplicité d'implémentation, elle-même un aspect de la frugalité retenue en section~2.1.2 (moins de composants à maintenir et à faire interopérer).
+
+Le peuplement lui-même s'effectue par insertion incrémentale des triplets produits pour chaque acte résolu, plutôt que par un chargement en un seul lot de l'ensemble du corpus : cette approche permet de vérifier, acte par acte, la cohérence de domaine et de codomaine de chaque triplet inséré (section~2.2.3) avant son insertion effective, et d'isoler immédiatement tout acte produisant des triplets non conformes au profil plutôt que de découvrir l'anomalie après le chargement complet du corpus.
+Les triplets sont sérialisés au format Turtle pour l'insertion et l'inspection manuelle --- plus lisible pour un contrôle humain --- et peuvent être exportés en JSON-LD pour une interopérabilité avec d'éventuels services externes, sans que ce second format ne soit nécessaire au fonctionnement du pipeline lui-même.
+
+L'interrogation du graphe ainsi peuplé s'effectue en SPARQL (section~1.3.6), permettant les requêtes relationnelles qui justifient, depuis la section~2.1.1, l'ensemble de la chaîne de traitement : retrouver tous les actes associés à une personne malgré des variations de graphie, reconstruire une chaîne de filiation sur plusieurs actes, ou vérifier la cohérence d'un rapprochement effectué par la résolution d'entités (section~2.4.5) en consultant conjointement les actes source qu'il relie.
+
+\section{Protocole expérimental et critères d'évaluation}
+
+\subsection{Métriques d'efficacité par composant}
+
+Le protocole d'évaluation distingue, conformément à la formalisation posée en section~2.1.2, deux familles de métriques : les métriques d'efficacité, mesurant la qualité de chaque composant du pipeline formalisé en section~2.4.1, et les métriques de frugalité (section~2.5.2), mesurant son coût en ressources. Cette section détaille la première famille, module par module.
+
+\textbf{HTR (Kraken, section~2.4.2).} La qualité de la transcription $T_k$ est mesurée par le taux d'erreur caractère (CER) et le taux d'erreur mot (WER),calculés par comparaison avec la transcription de référence produite via eScriptorium (section~2.3.3) :
+\begin{equation}
+    \mathrm{CER} = \frac{S+D+I}{N}
+\end{equation}
+où $S$, $D$ et $I$ désignent respectivement le nombre de substitutions, suppressions et insertions de caractères nécessaires pour transformer la sortie du système en texte de référence, et $N$ le nombre de caractères de cette référence ; le WER se définit de façon analogue, au niveau du mot.
+Ces deux mesures sont calculées sur l'ensemble de test isolé en section~2.4.2, à l'exclusion de tout acte dont une ligne aurait contribué à l'entraînement.
+
+\textbf{NER (section~2.4.3).} La qualité de l'extraction d'entités est mesurée par précision, rappel et score $F_1$, calculés séparément pour chaque étiquette du jeu retenu en section~2.3.3 :
+\begin{equation}
+    P = \frac{VP}{VP+FP}, \qquad R = \frac{VP}{VP+FN}, \qquad F_1 = 2\cdot\frac{P\times R}{P+R}
+\end{equation}
+où $VP$, $FP$ et $FN$ désignent respectivement le nombre de vrais positifs, faux positifs et faux négatifs, comptés par étiquette sur des mentions exactes (span et type identiques à la référence).
+Cette évaluation par étiquette, plutôt qu'un score global agrégé, est nécessaire pour identifier d'éventuels écarts de performance entre étiquettes bien représentées dans le corpus (\texttt{PER}, \texttt{DATE\_EVENEMENT}) et étiquettes rares (\texttt{NNI}, \texttt{ACTE\_REF}), dont la fiabilité conditionne directement celle de la résolution d'entités (section~2.4.5).
+
+\textbf{RE (section~2.4.3).} Les mêmes métriques de précision, rappel et $F_1$ s'appliquent aux relations produites par les règles positionnelles, cette fois comptées sur des relations complètes (type, source, cible) plutôt que sur des mentions isolées.
+L'évaluation distingue explicitement trois sources d'erreur, plutôt que de les confondre dans un score unique : les erreurs héritées de la transcription HTR, les erreurs de typage NER, et les erreurs propres à l'application des règles RE elles-mêmes --- une distinction rendue nécessaire par la nature séquentielle du pipeline établie en section~2.4.1, où une erreur amont ne peut être imputée au module qui la reçoit.
+
+\textbf{Résolution d'entités (section~2.4.5).} Faux positifs (fusion erronée de deux personnes distinctes) et faux négatifs (absence de lien entre deux mentions de la même personne) sont mesurés séparément pour chacune des trois méthodes d'appariement --- NNI, référence explicite, probabiliste ---, conformément au qualificatif \texttt{ecs:matchMethod} retenu en section~2.2.4, sur un échantillon d'actes dont les liens attendus ont été vérifiés manuellement.
+
+\textbf{Graphe (section~2.4.6).} Un taux de complétude des triplets est défini comme le rapport entre le nombre de triplets attendus pour un acte donné --- déterminé à partir des champs effectivement présents et lisibles sur l'acte source, non du nombre maximal de triplets que permettrait le profil complet (section~2.2) --- et le nombre de triplets correctement produits et insérés dans le graphe.
+Cette distinction importe : un champ absent de l'acte source (par exemple une mention de régime matrimonial, section~2.2.2) ne doit pas être compté comme une omission du pipeline.
+
+\subsection{Métriques de frugalité}
+
+Trois dimensions de coût, déjà identifiées au chapitre~1 (section~1.4) et formalisées en section~2.1.2 comme composantes du vecteur $C(\Theta)$, sont mesurées pour chaque configuration comparée en section~2.4.4 : la taille du modèle sur disque (en méga-octets), la mémoire vive (RAM) et, le cas échéant, la mémoire vidéo (VRAM) mobilisées lors de l'exécution, et le temps de traitement par acte --- mesuré sur une machine standard, sans accélération matérielle par GPU (spécifications détaillées en annexe), conformément au principe de frugalité posé en section~2.1.3 : un système dont l'évaluation dépendrait d'un GPU dédié ne renseignerait pas sur sa déployabilité réelle dans le contexte visé par ce mémoire.
+
+Pour chaque paire de configurations comparées --- $\Theta_{\mathrm{HTR}}^{\mathrm{\text{réf}}}$ contre $\Theta_{\mathrm{HTR}}^{\mathrm{INT8}}$ (section~2.4.4), et $\Theta_{\mathrm{NER}}^{\mathrm{\text{réf}}}$ contre $\Theta_{\mathrm{NER}}^{\mathrm{LoRA}}$ et $\Theta_{\mathrm{NER}}^{\mathrm{QLoRA}}$ ---, la relation de dominance frugale définie en section~2.1.2 est appliquée : une configuration compressée est retenue comme frugalement acceptable si son coût est inférieur ou égal à celui de la configuration de référence sur chacune des trois dimensions ci-dessus, et si sa dégradation de qualité (section~2.5.1) reste inférieure à un seuil $\delta$ fixé avant l'évaluation, propre à chaque composant.
+
+Ce seuil $\delta$ n'est volontairement pas fixé numériquement dans ce chapitre : ainsi qu'annoncé en introduction, sa valeur --- et, plus largement, la formulation définitive des hypothèses de recherche associées à chaque comparaison --- dépend de mesures préliminaires (pilote) sur un sous-ensemble du corpus, qui restent à conduire.
+Ce chapitre établit le protocole permettant de les mener ; leur résultat, et les seuils qui en découleront, relèvent du chapitre~3.
+
+\subsection{Conditions expérimentales, baselines et limites de validité}
+
+\textbf{Baselines.} En l'absence d'un moteur OCR classique comme point de comparaison --- la section~1.2.5 ayant déjà établi la nature du contraste attendu, sans qu'il soit nécessaire de le redémontrer empiriquement pour chaque composant ---, le protocole retient une baseline interne à chaque module plutôt qu'externe : pour le HTR, la performance de Kraken pré-entraîné, avant adaptation au corpus (section~2.4.2), comparée à sa performance après fine-tuning ; pour le NER, la performance de \texttt{camembert-ner-with-dates} restreinte à ses cinq étiquettes d'origine, avant adaptation (section~2.4.3), comparée à sa performance après adaptation au jeu d'étiquettes étendu.
+Ces baselines internes ont un avantage sur une comparaison à un outil externe : elles mesurent directement la valeur ajoutée de l'adaptation au corpus --- y compris, pour le NER, la question du biais sur les noms et toponymes d'Afrique subsaharienne soulevée en section~1.3.3 --- plutôt qu'un écart entre deux outils aux objectifs de conception différents.
+
+\textbf{Conditions matérielles.} Sauf mention contraire, l'ensemble des mesures d'efficacité (section~2.5.1) et de frugalité (section~2.5.2) est réalisé sur la même machine, dont les spécifications précises figurent en annexe, afin que les comparaisons entre configurations ne soient pas confondues avec des différences d'infrastructure.
+
+\textbf{Limites de validité.} Trois limites, déjà identifiées séparément dans ce chapitre, doivent être rappelées conjointement au moment d'interpréter les résultats du chapitre~3.
+L'annotation de référence, produite par un annotateur unique (section~2.3.4), ne permet pas de distinguer une erreur du pipeline d'un désaccord d'annotation qu'un second annotateur aurait pu trancher différemment.
+Le corpus présente un déséquilibre entre types d'actes --- les actes de naissance restant majoritaires ---, ce qui limite la fiabilité statistique des métriques calculées sur les actes de mariage et de décès, en particulier pour les étiquettes qui leur sont propres (section~2.3.3).
+Enfin, l'évaluation de la résolution d'entités (section~2.4.5) se heurte à une difficulté propre à sa méthode : la stratégie de blocage, en excluant par construction certaines paires de la comparaison, rend le rappel de la résolution difficile à mesurer directement --- seul un échantillon vérifié manuellement, nécessairement partiel, peut en donner une estimation.
+
+\section*{Conclusion du chapitre}
+
+Ce chapitre a répondu au double objectif annoncé en introduction. Sur le plan conceptuel, la section~2.1 a formalisé la frugalité numérique comme un problème d'optimisation sous contrainte plutôt que comme une simple préférence pour les petits modèles, et a situé la gouvernance documentaire et la souveraineté comme la finalité --- non une étape --- de la chaîne de traitement.
+Sur le plan méthodologique, les sections~2.2 à~2.5 ont décrit, dans cet ordre, la modélisation retenue autour de RiC-O, le corpus et son protocole d'annotation, l'architecture complète du pipeline --- formalisée en section~2.4.1 puis détaillée module par module ---, et le protocole permettant d'en évaluer conjointement la qualité et la frugalité.
+
+Chacune des quatre lacunes identifiées au chapitre~1 (tableau~1.6) trouve, dans ce chapitre, une réponse méthodologique explicite : l'absence de corpus HTR représentatif est adressée par le protocole de collecte et d'annotation de la section~2.3 ; l'absence d'évaluation du biais des modèles NLP sur les noms africains, par les baselines internes de la section~2.5.3 ; l'absence d'évaluation systématique des techniques de frugalité sur un corpus à faibles ressources, par le protocole de la section~2.5.2 ; l'absence de profil d'application RiC-O pour l'état civil manuscrit, par la modélisation de la section~2.2.
+
+Un point annoncé dès l'introduction de ce chapitre reste néanmoins volontairement ouvert : les hypothèses de recherche formelles n'y ont pas été formulées, faute de mesures préliminaires permettant de fixer les seuils de dégradation acceptable ($\delta$, section~2.5.2) sur des bases empiriques plutôt qu'arbitraires.
+Le chapitre~3 conduit ces mesures pilotes, formule les hypothèses qui en découlent, puis rapporte les résultats de l'ensemble du protocole défini ici --- sur la reconnaissance manuscrite, l'extraction sémantique, la résolution d'entités et le peuplement du graphe de connaissances.

@@ -26,6 +26,10 @@ Thumbs.db
 .idea/
 *.bak
 *.swp
+*.glo
+*.ist
+*.acn
+
 
 *.pdf
 !livrables_officiels/*.pdf
